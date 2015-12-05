@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SaveDialog</class>
+ <widget class="QDialog" name="SaveDialog">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>165</width>
+    <height>23</height>
+   </rect>
+  </property>
+  <property name="acceptDrops">
+   <bool>false</bool>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="windowOpacity">
+   <double>-1.000000000000000</double>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <widget class="QPushButton" name="btn_ok">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>保存</string>
+   </property>
+   <property name="icon">
+    <iconset resource="QFramer.qrc">
+     <normaloff>:/skin/icons/dark/appbar.check.png</normaloff>:/skin/icons/dark/appbar.check.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_quit">
+   <property name="geometry">
+    <rect>
+     <x>89</x>
+     <y>0</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>取消</string>
+   </property>
+   <property name="icon">
+    <iconset resource="QFramer.qrc">
+     <normaloff>:/skin/icons/dark/appbar.stop.png</normaloff>:/skin/icons/dark/appbar.stop.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="QFramer.qrc"/>
+ </resources>
+ <connections/>
+</ui>

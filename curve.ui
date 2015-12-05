@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>curve</class>
+ <widget class="QWidget" name="curve">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1259</width>
+    <height>624</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>curve</string>
+  </property>
+  <widget class="QTabWidget" name="tabWidget">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>10</y>
+     <width>971</width>
+     <height>611</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>二维演示</string>
+    </attribute>
+    <widget class="QGroupBox" name="groupBox_6">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>58</y>
+       <width>931</width>
+       <height>521</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <widget class="QWidget" name="gridLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>911</width>
+        <height>501</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout"/>
+     </widget>
+     <widget class="QPushButton" name="refreshButton_2">
+      <property name="geometry">
+       <rect>
+        <x>-10</x>
+        <y>-50</y>
+        <width>41</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>刷新</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>432</width>
+       <height>39</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>绘图类型</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="linetypeBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>20</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string>柱状图</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>折线图</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>绘制</string>
+          </property>
+          <property name="icon">
+           <iconset resource="QFramer.qrc">
+            <normaloff>:/skin/icons/dark/appbar.youtube.play.png</normaloff>:/skin/icons/dark/appbar.youtube.play.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>60</width>
+            <height>40</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="outButton">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>截图...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="QFramer.qrc">
+            <normaloff>:/skin/icons/dark/appbar.image.png</normaloff>:/skin/icons/dark/appbar.image.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <zorder>layoutWidget</zorder>
+    <zorder>groupBox_6</zorder>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>统计表格</string>
+    </attribute>
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>941</width>
+       <height>531</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="outputButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>550</y>
+       <width>75</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>导出...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="QFramer.qrc">
+       <normaloff>:/skin/icons/dark/appbar.inbox.in.png</normaloff>:/skin/icons/dark/appbar.inbox.in.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>30</width>
+       <height>30</height>
+      </size>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>261</width>
+     <height>621</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>型号信息</string>
+   </property>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>241</width>
+      <height>76</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>80</height>
+     </size>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>卫星名称</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
+         <property name="acceptDrops">
+          <bool>true</bool>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="refreshButton_3">
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>刷新</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>显示数据</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBox_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editable">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>刷新</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>241</width>
+      <height>110</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>160</height>
+     </size>
+    </property>
+    <property name="title">
+     <string>时间</string>
+    </property>
+    <widget class="QLineEdit" name="enddateEdit">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>49</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2013-01-31 00:00:00</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="enddateButton">
+     <property name="geometry">
+      <rect>
+       <x>209</x>
+       <y>49</y>
+       <width>21</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:rgb(70,130,180);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="QFramer.qrc">
+       <normaloff>:/skin/icons/light/appbar.calendar.png</normaloff>:/skin/icons/light/appbar.calendar.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>25</width>
+       <height>25</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>48</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>结束时间</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>22</y>
+       <width>48</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>起始时间</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="startdateButton">
+     <property name="geometry">
+      <rect>
+       <x>209</x>
+       <y>19</y>
+       <width>21</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:rgb(70,130,180);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="QFramer.qrc">
+       <normaloff>:/skin/icons/light/appbar.calendar.png</normaloff>:/skin/icons/light/appbar.calendar.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>25</width>
+       <height>25</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="startdateEdit">
+     <property name="geometry">
+      <rect>
+       <x>69</x>
+       <y>19</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2013-01-01 00:00:00</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBox_2">
+     <property name="geometry">
+      <rect>
+       <x>69</x>
+       <y>79</y>
+       <width>161</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <item>
+      <property name="text">
+       <string>年</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>月</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>日</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>时</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>分</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>秒</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>48</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>单位   </string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>241</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>芯片</string>
+    </property>
+    <widget class="QListWidget" name="listWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>221</width>
+       <height>221</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="advancedButton">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>516</y>
+      <width>181</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>35</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>200</width>
+      <height>16777215</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <family>Agency FB</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>高级选项</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="QFramer.qrc"/>
+ </resources>
+ <connections/>
+</ui>

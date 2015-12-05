@@ -1,0 +1,794 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>curve</class>
+ <widget class="QWidget" name="curve">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1359</width>
+    <height>685</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>curve</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>221</width>
+     <height>631</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>AcadEref</family>
+     <pointsize>9</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="title">
+    <string>型号信息</string>
+   </property>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>73</y>
+      <width>201</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>时间</string>
+    </property>
+    <widget class="QPushButton" name="startdateButton">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>15</y>
+       <width>21</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:rgb(70,130,180);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="QFramer.qrc">
+       <normaloff>:/skin/icons/light/appbar.calendar.png</normaloff>:/skin/icons/light/appbar.calendar.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>25</width>
+       <height>25</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>7</x>
+       <y>17</y>
+       <width>50</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>起始时间</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="startdateEdit">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>15</y>
+       <width>101</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2013-01-01</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="enddateButton">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>45</y>
+       <width>21</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:rgb(70,130,180);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="QFramer.qrc">
+       <normaloff>:/skin/icons/light/appbar.calendar.png</normaloff>:/skin/icons/light/appbar.calendar.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>25</width>
+       <height>25</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="enddateEdit">
+     <property name="geometry">
+      <rect>
+       <x>61</x>
+       <y>45</y>
+       <width>101</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2013-01-31</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>7</x>
+       <y>46</y>
+       <width>50</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>结束时间</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>7</x>
+       <y>72</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>单位</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBox_2">
+     <property name="geometry">
+      <rect>
+       <x>61</x>
+       <y>70</y>
+       <width>121</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>周</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>月</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>年</string>
+      </property>
+     </item>
+    </widget>
+    <zorder>label_7</zorder>
+    <zorder>startdateButton</zorder>
+    <zorder>label_8</zorder>
+    <zorder>startdateEdit</zorder>
+    <zorder>enddateButton</zorder>
+    <zorder>enddateEdit</zorder>
+    <zorder>label_2</zorder>
+    <zorder>comboBox_2</zorder>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>510</y>
+      <width>201</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>芯片</string>
+    </property>
+    <widget class="QListWidget" name="listWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>171</width>
+       <height>81</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>201</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QCheckBox" name="multiSatcheckBox">
+     <property name="geometry">
+      <rect>
+       <x>7</x>
+       <y>30</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>多颗卫星</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>7</x>
+       <y>6</y>
+       <width>48</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>卫星名称</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBox">
+     <property name="geometry">
+      <rect>
+       <x>59</x>
+       <y>5</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="refreshButton">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>4</y>
+       <width>31</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>刷新</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>groupBox_2</zorder>
+   <zorder>groupBox_4</zorder>
+   <zorder>groupBox_3</zorder>
+  </widget>
+  <widget class="QTabWidget" name="tabWidget">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>10</y>
+     <width>1001</width>
+     <height>631</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>二维演示</string>
+    </attribute>
+    <widget class="QComboBox" name="linetypeBox">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>15</y>
+       <width>101</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>柱状图</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>折线图</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>291</x>
+       <y>10</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>绘制二维曲线</string>
+     </property>
+     <property name="icon">
+      <iconset resource="QFramer.qrc">
+       <normaloff>:/skin/icons/dark/appbar.youtube.play.png</normaloff>:/skin/icons/dark/appbar.youtube.play.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>60</width>
+       <height>40</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>21</y>
+       <width>54</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>绘图类型</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="outButton">
+     <property name="geometry">
+      <rect>
+       <x>550</x>
+       <y>10</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>截图...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="QFramer.qrc">
+       <normaloff>:/skin/icons/dark/appbar.image.png</normaloff>:/skin/icons/dark/appbar.image.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>30</width>
+       <height>30</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_6">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>58</y>
+       <width>961</width>
+       <height>541</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <widget class="QWidget" name="gridLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>941</width>
+        <height>521</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout"/>
+     </widget>
+     <widget class="QPushButton" name="refreshButton_2">
+      <property name="geometry">
+       <rect>
+        <x>-10</x>
+        <y>-50</y>
+        <width>41</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>刷新</string>
+      </property>
+     </widget>
+    </widget>
+    <zorder>groupBox_6</zorder>
+    <zorder>linetypeBox</zorder>
+    <zorder>pushButton</zorder>
+    <zorder>label_3</zorder>
+    <zorder>outButton</zorder>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>统计表格</string>
+    </attribute>
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>971</width>
+       <height>531</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="outputButton">
+     <property name="geometry">
+      <rect>
+       <x>860</x>
+       <y>570</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>导出...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="QFramer.qrc">
+       <normaloff>:/skin/icons/dark/appbar.inbox.in.png</normaloff>:/skin/icons/dark/appbar.inbox.in.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>30</width>
+       <height>30</height>
+      </size>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_5">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>190</y>
+     <width>201</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>经纬度划分</string>
+   </property>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>26</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>经度分段</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>56</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>纬度分段</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="longitudeBox">
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>20</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>24</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>48</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>72</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="latitudeBox">
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>50</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>12</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>24</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>36</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLineEdit" name="longitudeIDEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>106</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>小于经度段数</string>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="latitudeIDEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>134</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>小于纬度段数</string>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>107</y>
+      <width>48</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>经度编号</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>135</y>
+      <width>48</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>纬度编号</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_2">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>81</y>
+      <width>119</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>按经纬度编号筛选</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_7">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>360</y>
+     <width>201</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>选择区域</string>
+   </property>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>23</y>
+      <width>119</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>按经纬度区域筛选</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>47</y>
+      <width>48</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>经度从</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="startLongitudeEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>47</y>
+      <width>121</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>介于-180与180，东经为正，西经为负</string>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>72</y>
+      <width>48</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>到</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="startLatitudeEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>96</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>介于-90与90，北纬为正，南纬为负</string>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>96</y>
+      <width>48</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>纬度从</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="endLongitudeEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>73</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>介于-180与180，东经为正，西经为负</string>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>120</y>
+      <width>48</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>到</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="endLatitudeEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>120</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>介于-90与90，北纬为正，南纬为负</string>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="QFramer.qrc"/>
+ </resources>
+ <connections/>
+</ui>
