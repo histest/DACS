@@ -7,7 +7,8 @@ SaveDialog::SaveDialog(QWidget *parent) :
 {
   //  ui->setupUi(this);
 	this->resize(165, 23);
-	setWindowFlags(Qt::FramelessWindowHint);
+	setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint);
+	/*	viewWidget->setWindowFlags(Qt::Window);*/
 	QString str = str.fromLocal8Bit("±£´æ");
 	btn_save = new QPushButton(str,this);
 	btn_save->setObjectName(QString::fromUtf8("btn_save"));

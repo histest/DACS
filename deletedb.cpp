@@ -26,17 +26,26 @@ void Deletedb::initUI()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from PARAMETER order by ID");
 	QStringList list,list2;
-	QString lastChip;
+	bool Isexist;
 	while(query.next())
 	{
-		list.append(query.value(1).toString());
-		if(lastChip!=query.value(3).toString())
-			list2.append(query.value(3).toString());
-		lastChip=query.value(3).toString();
-
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(3).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+			list.append(query.value(3).toString());
+		Isexist=false;
 	}
-	this->ui.comboBox->addItems(list);
-	this->ui.comboBox_2->addItems(list2);
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
+	QStringList satlist;
+	while(query.next())
+	{
+		satlist.append(query.value(1).toString());
+	}
+	this->ui.comboBox->addItems(satlist);
+	this->ui.comboBox_2->addItems(list);
 
 	QStringList*namelist = new QStringList;
 	namelist->append(QString::fromLocal8Bit("累计复位次数"));
@@ -44,7 +53,7 @@ void Deletedb::initUI()
 	namelist->append(QString::fromLocal8Bit("复位原因"));	
 	namelist->append(QString::fromLocal8Bit("单错次数"));	
 	namelist->append(QString::fromLocal8Bit("发生错误的IO或RAM或ROM地址"));	
-	namelist->append(QString::fromLocal8Bit("陷阱（Trap)类型"));	
+	namelist->append(QString::fromLocal8Bit("陷阱类型"));	
 	namelist->append(QString::fromLocal8Bit("切机标志"));	
 	namelist->append(QString::fromLocal8Bit("加电标志"));	
 	namelist->append(QString::fromLocal8Bit("SRAM单错累计次数"));	
@@ -63,11 +72,27 @@ void Deletedb::initUI()
 	namelist->append(QString::fromLocal8Bit("MRAM双错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM单错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM错误计数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH错误计数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	namelist->append(QString::fromLocal8Bit("同步故障类型"));	
-	ui.comboBox_3->addItems(*namelist);
+
+	ui.comboBox_3->clear();
+	query.exec("select*from DICTIONARY order by ID");
+	list.clear();
+	while(query.next())
+	{
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+			list.append(query.value(1).toString());
+		//vtpara.push_back(query.value(1).toString());
+		Isexist=false;
+	}
+	ui.comboBox_3->addItems(list);
 	ui.tableView_3->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
 void Deletedb::on_previewButton_2_clicked()
@@ -121,6 +146,32 @@ void Deletedb::on_deleteButton_clicked()
 		model->revertAll(); //如果不删除，则撤销
 	}
 	on_previewButton_2_clicked();
+
+}
+void Deletedb::on_deleteallButton_clicked()
+{
+	QString strsat = ui.comboBox->currentText();
+	QSqlQuery query(*sql.db);
+	int ok = QMessageBox::warning(this,QString::fromLocal8Bit("全部删除!"),QString::fromLocal8Bit("你确定删除该卫星所有数据吗?"),QMessageBox::Yes,QMessageBox::No);
+	if(ok == QMessageBox::Yes)
+	{
+		if(query.exec("delete * from SATELLITE where SATELLITENO = '"+strsat+"'")&&query.exec("delete * from SATELLITE_PUBLIC where SATELLITENO = '"+strsat+"'")&&query.exec("delete * from SOURCEDATA where SATELLITENO = '"+strsat+"'"))
+			QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("已删除！"), QMessageBox::Yes);
+		this->ui.comboBox->clear();
+		query.exec("select*from SATELLITE_PUBLIC order by ID");
+		QStringList satlist;
+		while(query.next())
+		{
+			satlist.append(query.value(1).toString());
+		}
+		this->ui.comboBox->addItems(satlist);
+		QSqlTableModel* model = new QSqlTableModel(this,*sql.db);
+		ui.tableView_2->setModel(model);
+	}
+	else
+	{
+		return;
+	}
 }
 void Deletedb::on_saveButton_clicked()
 {
@@ -220,6 +271,7 @@ void Deletedb::on_previewButton_4_clicked()
 	dictionarymodel->setFilter(QObject::tr("NAME = '%1'").arg(strName));//(strsql); //根据姓名进行筛选
 	dictionarymodel->select(); //显示结果
 	// model->removeColumn(1); //不显示name属性列,如果这时添加记录，则该属性的值添加不上 
+
 	ui.tableView_3->setModel(dictionarymodel); 
 	//	ui.tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 
@@ -270,6 +322,22 @@ void Deletedb::on_deleteButton_3_clicked()
 	}
 	on_previewButton_4_clicked();
 	initUI();
+}
+void Deletedb::on_radioButton_clicked()
+{
+	if (ui.radioButton->isChecked())
+	{
+		ui.comboBox_4->setEnabled(false);
+		ui.comboBox_2->setEnabled(true);
+	}
+}
+void Deletedb::on_radioButton_2_clicked()
+{
+	if (ui.radioButton_2->isChecked())
+	{
+		ui.comboBox_2->setEnabled(false);
+		ui.comboBox_4->setEnabled(true);
+	}
 }
 Deletedb::~Deletedb()
 {

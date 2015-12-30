@@ -118,7 +118,7 @@ QComboBox::hover{
   border-color:#5D8B9E;  
 }  
 QComboBox:editable {  
-     background: rgb(3,110,184);
+     background-color: rgb(255, 255, 255);
 }  
  
 /* ******************QComboBox****************** */

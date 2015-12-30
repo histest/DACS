@@ -122,6 +122,25 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="deleteallButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>全删</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="saveButton">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -174,27 +193,38 @@
       <attribute name="title">
        <string>参数</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
-        <widget class="QTableView" name="tableView"/>
-       </item>
-       <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QLabel" name="label_2">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QRadioButton" name="radioButton">
            <property name="text">
-            <string>芯片名称</string>
+            <string>按芯片名称查询</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QComboBox" name="comboBox_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_2">
+           <property name="text">
+            <string>按卫星名称查询</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_4">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -284,6 +314,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="deleteAllButton">
+           <property name="text">
+            <string>全删</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="saveButton_2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -324,6 +361,9 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QTableView" name="tableView"/>
        </item>
       </layout>
      </widget>

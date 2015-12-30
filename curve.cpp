@@ -47,7 +47,7 @@ void curve::initUI()
 {
 	vecSat.clear();
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
 	while(query.next())
 	{
@@ -76,7 +76,7 @@ void curve::initUI()
 	namelist->append(QString::fromLocal8Bit("复位原因"));	
 	namelist->append(QString::fromLocal8Bit("单错次数"));	
 	namelist->append(QString::fromLocal8Bit("发生错误的IO或RAM或ROM地址"));	
-	namelist->append(QString::fromLocal8Bit("陷阱（Trap)类型"));	
+	namelist->append(QString::fromLocal8Bit("陷阱类型"));	
 	namelist->append(QString::fromLocal8Bit("切机标志"));	
 	namelist->append(QString::fromLocal8Bit("加电标志"));	
 	namelist->append(QString::fromLocal8Bit("SRAM单错累计次数"));	
@@ -95,9 +95,9 @@ void curve::initUI()
 	namelist->append(QString::fromLocal8Bit("MRAM双错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM单错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM错误计数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH错误计数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	namelist->append(QString::fromLocal8Bit("同步故障类型"));	
 	ui.comboBox_3->addItems(*namelist);
 }
@@ -105,7 +105,7 @@ void curve::refresh()
 {
 	this->ui.comboBox->clear();
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
 	while(query.next())
 	{
@@ -132,12 +132,12 @@ void curve::setupChart()
 	//	xcount=deltadate/7;
 	//	remainday=deltadate%7;
 	//}
-	if (index==1)
+	if (index==0)
 	{
 		xcount=deltadate/31;
 		remainday=deltadate%31;
 	}
-	if (index==0)
+	if (index==1)
 	{
 		xcount=deltadate/365;
 		remainday=deltadate%365;
@@ -193,11 +193,14 @@ void curve::setupChart()
 		chart = new XYChart(900, 500);
 	}
 	chart->setDefaultFonts("simsun.ttc");
-	BarLayer *barlayer = chart->addBarLayer(Chart::Side, 0);
+
+	QTextCodec::setCodecForTr(QTextCodec::codecForName("GB2312"));
+	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GB2312"));
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("GB2312"));
 	if(IsBarchart==true)
 	{
 		chart->setPlotArea(50, 50, 800, 420, 0xf8f8f8, 0xffffff);
-		chart->addLegend(300, 25, false, "mingliu.ttf", 8)->setBackground(Chart::Transparent);
+		chart->addLegend(300, 25, false, "simsun.ttc", 10)->setBackground(Chart::Transparent);
 		chart->xAxis()->setTickOffset(0.5);
 		const char *labels[256] = {};
 		chart->xAxis()->setLabels(StringArray(labels, (int)(sizeof(labels) / sizeof(labels[0]))));
@@ -206,11 +209,11 @@ void curve::setupChart()
 	{
 		chart->setPlotArea(50, 50, 921, 400, chart->linearGradientColor(0, 55, 0, 335, 0xf9fcff, 0xaaccff), -1,
 			Chart::Transparent, 0xffffff);
-		chart->addLegend(300, 25, false, "mingliu.ttf", 10)->setBackground(Chart::Transparent);
+		chart->addLegend(300, 25, false, "simsun.ttc", 10)->setBackground(Chart::Transparent);
 		const char *labels[256] = {};
 		chart->xAxis()->setLabels(StringArray(labels, (int)(sizeof(labels) / sizeof(labels[0]))));
 	}
-
+	BarLayer *barlayer = chart->addBarLayer(Chart::Side, 0);
 	satellitecount = sqllist.count(); 
 	int rowcount=0;
 	rowcount=(xcount+1)*satellitecount;
@@ -331,7 +334,7 @@ void curve::setupChart()
 
 			////}
 			//else
-			if(index==1) 
+			if(index==0) 
 			{
 				if(k!=xcount)
 				{
@@ -425,7 +428,7 @@ void curve::setupChart()
 				//	}
 				//}
 			}
-			else if(index==0) 
+			else if(index==1) 
 			{
 				if (deltaDay%365!=0||deltaDay==0)
 				{
@@ -516,33 +519,60 @@ void curve::setupChart()
 		}
 		for (int j=0;j<xcount+2;j++)
 		{		
+			int currentday = this->startdatetime.date().day()+j;
+			QDateTime currentDateTime;
+			QDate currentDate;
 			ui.tableWidget->setItem(j+i*(xcount+1),0,new QTableWidgetItem(satelliteNo[i])); 
 			if (index==2)
 			{
-				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("天"))); 
+				currentDate = this->startdatetime.date().addDays(j);
+				QString strDate = currentDate.toString("yyyy-MM-dd");
+				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(strDate));// QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("天")			
+
 			}
 			else if(index==1)
 			{
-				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("月"))); 
+				currentDate = this->startdatetime.date().addYears(j);
+				QString strDate = currentDate.toString("yyyy");
+				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(strDate));//new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("月"))); 
 			}
 			else if(index==0)
 			{
-				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("年"))); 
+				currentDate = this->startdatetime.date().addMonths(j);
+				QString strDate = currentDate.toString("yyyy-MM");
+				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(strDate));//new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("年"))); 
 			}
 			else if(index==3)
-			{
-				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("小时"))); 
+			{			
+				QTime time =this->startdatetime.time().addSecs(j*3600);
+				QString strTime = time.toString("hh:mm:ss");
+				currentDate = this->startdatetime.date().addDays(j/24);
+				QString strDate = currentDate.toString("yyyy-MM-dd");
+				strDate+=" "+strTime;
+				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(strDate));//,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("小时"))); 
 			}
 			else if(index==4)
 			{
-				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("分钟"))); 
+				QTime time =this->startdatetime.time().addSecs(j*60);
+				QString strTime = time.toString("hh:mm:ss");
+				currentDate = this->startdatetime.date().addDays(j/1440);
+				QString strDate = currentDate.toString("yyyy-MM-dd");
+				strDate+=" "+strTime;
+				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(strDate));//,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("分钟"))); 
 			}
 			else if(index==5)
 			{
-				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("秒"))); 
+				QTime time =this->startdatetime.time().addSecs(j);
+				QString strTime = time.toString("hh:mm:ss");
+				currentDate = this->startdatetime.date().addDays(j/86400);
+				QString strDate = currentDate.toString("yyyy-MM-dd");
+				strDate+=" "+strTime;
+				ui.tableWidget->setItem(j+i*(xcount+1),1,new QTableWidgetItem(strDate));//,new QTableWidgetItem(QString::fromLocal8Bit("第")+QString::number(j+1)+QString::fromLocal8Bit("秒"))); 
 			}
 			ui.tableWidget->setItem(j+i*(xcount+1),2,new QTableWidgetItem(QString::number(y[j+1]))); 
-			ui.tableWidget->setItem(j+i*(xcount+1),3,new QTableWidgetItem(QString::number(y[j+1]*100/totalcount)+"%")); 
+			if(totalcount>0)
+				ui.tableWidget->setItem(j+i*(xcount+1),3,new QTableWidgetItem(QString::number(y[j+1]*100/totalcount)+"%")); 
+			ui.tableWidget->setItem(j+i*(xcount+1),4,new QTableWidgetItem(strzone)); 
 			/*if (IssiftID==true)
 			{
 				ui.tableWidget->setItem(j+i*(xcount+1),4,new QTableWidgetItem(QString::fromLocal8Bit("经纬度编号：")+QString::number(longitudeID)+","+QString::number(latitudeID))); 
@@ -556,51 +586,33 @@ void curve::setupChart()
 				ui.tableWidget->setItem(j+i*(xcount+1),4,new QTableWidgetItem(QString::fromLocal8Bit("全球"))); 
 			}*/
 		}
-		//QTextCodec::setCodecForTr(QTextCodec::codecForName("GB2312"));
-		//QTextCodec::setCodecForLocale(QTextCodec::codecForName("GB2312"));
-		//QTextCodec::setCodecForCStrings(QTextCodec::codecForName("GB2312"));
+
 		if(IsBarchart==true)
 		{
-			std::string strtemp = satelliteNo[i].toStdString();
-			//std::string strtemp;// = QTextCodec::codecForName("UTF-8")->fromUnicode("单错数").constData();
-
-			//QTextCodec::setCodecForTr(QTextCodec::codecForName("GBK"));
-
-			//QTextCodec* code = QTextCodec::codecForName("GBK");
-			//QString qstr = QObject::tr("中国");//satelliteNo[i];//
-			//strtemp = code->fromUnicode(qstr).data();
-
-
-			//QTextCodec::setCodecForTr(QTextCodec::codecForName("GBK"));
-
-			//QTextCodec::setCodecForCStrings(QTextCodec::codecForName("GBK"));
-
-			//QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
-			//QByteArray ba = qstr.toLatin1();    
-			//char*  ch;
-			//ch=ba.data();
+			//std::string strtemp = satelliteNo[i].toStdString();
+			std::string strtemp = QTextCodec::codecForName("UTF-8")->fromUnicode(satelliteNo[i]).constData();
+		//	BarLayer *barlayer = chart->addBarLayer();
 
 			double data[1];
 			if(xcount==0)
 			{
 				data[0]=y[1];
-				barlayer->addDataSet(DoubleArray(data, (int)(sizeof(data) / sizeof(data[0]))), 0x8080ff+1000*i,
-					strtemp.c_str()); 
-				//if((i+1)%2==0)
-				//{
-				//	barlayer->addDataSet(DoubleArray(data, (int)(sizeof(data) / sizeof(data[0]))), 0xff8080+1000*i,
-				//		QTextCodec::codecForName("UTF-8")->fromUnicode("单错数").constData());
-				//}
-				//else if((i+1)%3==0)
-				//{
-				//	barlayer->addDataSet(DoubleArray(data, (int)(sizeof(data) / sizeof(data[0]))), 0x80ff80+1000*i,
-				//		QTextCodec::codecForName("UTF-8")->fromUnicode("单错数").constData());
-				//}
-				//else
-				//{
-				//	barlayer->addDataSet(DoubleArray(data, (int)(sizeof(data) / sizeof(data[0]))), 0x8080ff+1000*i,
-				//		QTextCodec::codecForName("UTF-8")->fromUnicode("单错数").constData()); 
-				//}
+
+				if((i+1)%2==0)
+				{
+					barlayer->addDataSet(DoubleArray(data, (int)(sizeof(data) / sizeof(data[0]))), 0xff8080+1000*i,
+						strtemp.c_str());
+				}
+				else if((i+1)%3==0)
+				{
+					barlayer->addDataSet(DoubleArray(data, (int)(sizeof(data) / sizeof(data[0]))), 0x80ff80+1000*i,
+						strtemp.c_str());
+				}
+				else
+				{
+					barlayer->addDataSet(DoubleArray(data, (int)(sizeof(data) / sizeof(data[0]))), 0x8080ff+1000*i,
+						strtemp.c_str());
+				}
 			}
 			else
 			{
@@ -703,60 +715,41 @@ void curve::setupChart()
 	
 	}
 	// Add a title to the y-axis
-	chart->yAxis()->setTitle("FaultCount");
+	chart->yAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("数量").constData(), "simsun.ttc", 9);
 	chart->yAxis()->setAutoScale();
 
-	//if (index==2)
-	//{
-	//	QString  str= QString::fromLocal8Bit("时间/周");
-	//	char* ch;
-	//	QTextCodec::setCodecForTr(QTextCodec::codecForName("GBK"));
-	//	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
-	//	QByteArray ba = str.toLocal8Bit(); 
-	//	ch=ba.data();
-	//	chart->xAxis()->setTitle("Time/week");//
-	//}
-	//else 
-	if (index==1)
+
+	if (index==0)
 	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/月").constData(), "simsun.ttc", 8);//"Time/week"
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/月").constData(), "simsun.ttc", 9);//"Time/week"
 	}
-	else if (index==0)
+	else if (index==1)
 	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/年").constData(), "simsun.ttc", 8);//"Time/week"
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/年").constData(), "simsun.ttc", 9);//"Time/week"
 	}
 	else if (index==2)
 	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/天").constData(), "simsun.ttc", 8);//"Time/week"
-
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/天").constData(), "simsun.ttc", 9);//"Time/week"
 	}
-	else if (index==3)
-	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/小时").constData(), "simsun.ttc", 8);//"Time/week"
+	// Output the chart
+	//chart->makeChart("multishapebar.png");
 
-	}
-	else if (index==4)
-	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/分钟").constData(), "simsun.ttc", 8);//"Time/week"
 
-	}
-	else if (index==5)
-	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/秒").constData(), "simsun.ttc", 8);//"Time/week"
+	// Output the chart
 
-	}
-	chart->makeChart("multishapebar.png");
 	viewer->setChart(chart);
-	viewer->setImageMap(
-		chart->getHTMLImageMap("", "", "title='{xLabel}: {value}'"));
-	delete chart;
+
+	//// Include tool tip for the chart
+	//viewer->setImageMap(
+	//	chart->getHTMLImageMap("", "", "title='{xLabel}: {value}'"));
+	//delete chart;
 
 }
 void curve::on_pushButton_clicked()
 {
 	ui.tableWidget->clear();
 	QStringList header;  
-	header<<QString::fromLocal8Bit("卫星")<<QString::fromLocal8Bit("时间")<<QString::fromLocal8Bit("单错次数")<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
+	header<<QString::fromLocal8Bit("卫星")<<QString::fromLocal8Bit("时间")<<ui.comboBox_3->currentText()<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
 	ui.tableWidget->setColumnCount(5);   
 	ui.tableWidget->setHorizontalHeaderLabels(header);  
 	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
@@ -800,6 +793,9 @@ void curve::on_pushButton_clicked()
 	deltasecs = startdatetime.secsTo(enddatetime);
 	deltadate=startdatetime.daysTo(enddatetime);;//option->delta_day(startYear,startMonth,startDay,endYear,endMonth,endDay);
 
+
+	satlist.clear();
+	paralist.clear();
 	QString strSat = ui.comboBox->currentText();
 	QString strsql;
 	QString strpara = ui.comboBox_3->currentText();
@@ -816,7 +812,7 @@ void curve::on_pushButton_clicked()
 		strsql =  QString("select  %1  , %2 ,  %3,DATETIME   from SATELLITE where SATELLITENO = '"+strSat+"' and DATETIME between #"+startDate+"# and #"+endDate+"# ").arg(strpara).arg(strlongitude).arg(strlatitude);
 	}
 	sqllist.append(strsql);
-
+	strzone = QString::fromLocal8Bit("全球");
 	this->timeID = ui.comboBox_2->currentIndex();
 	setupChart();
 	// Show the viewer
@@ -830,36 +826,6 @@ void curve::on_outButton_clicked()
 	m_cutimage = new MyCutImageWidget(this);
 	m_cutimage->setWindowOpacity(0.2);
 	m_cutimage->showFullScreen();
-
-
-//#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-//	QPixmap pm = QPixmap::grabWindow(qApp->desktop()->winId(), this->x()+2, this->y()+2, this->frameGeometry().width()-4, this->frameGeometry().height()-4);
-//#else
-//	QPixmap pm = qApp->primaryScreen()->grabWindow(qApp->desktop()->winId(), this->x()+2, this->y()+2, this->frameGeometry().width()-4, this->frameGeometry().height()-4);
-//#endif
-//	QString fileName = "screenshot.png";
-//	fileName.replace(" ", "");
-//	pm.save("./screenshots/"+fileName);
-	//QFileDialog dlg;
-	//dlg.setAcceptMode(QFileDialog::AcceptSave);
-	////  Qt 4
-	//dlg.setDirectory(QDesktopServices::storageLocation(QDesktopServices::DesktopLocation));
-	//dlg.setNameFilter("*.xls");
-	//dlg.selectFile(QDate::currentDate().toString("yyyy-MM-dd.xls"));
-	//if(dlg.exec()!= QDialog::Accepted)
-	//	return;
-	//QString filePath=dlg.selectedFiles()[0];
-	//if(OdbcExcel::saveFromTable(filePath,ui.tableWidget,"")) {
-	//	QString str = str.fromLocal8Bit("提示");
-	//	QString str2 = str.fromLocal8Bit("保存成功");
-	//	QMessageBox::information(this,str,str2);
-	//}
-	//else{
-	//	QString str = str.fromLocal8Bit("错误");
-	//	//	QString str2 = str.fromLocal8Bit("保存成功");
-	//	QString msg="保存失败！\n\r"+OdbcExcel::getError();
-	//	QMessageBox::critical(this,str,tr(msg.toUtf8()));
-	//}
 }
 void curve::on_outputButton_clicked()
 {
@@ -1036,7 +1002,7 @@ void curve::setsql(QStringList strlist)
 	startMonth = option->startMonth;
 	startDay = option->startDay;
 
-
+	strzone = option->strzone;
 	//startYear = ui.dateTimeEdit->date().year();
 	//startMonth=ui.dateTimeEdit->date().month();
 	//startDay = ui.dateTimeEdit->date().day();
@@ -1044,25 +1010,19 @@ void curve::setsql(QStringList strlist)
 	//endMonth=ui.dateTimeEdit_2->date().month();
 	//endDay = ui.dateTimeEdit_2->date().day();
 	//deltadate=option->delta_day(startYear,startMonth,startDay,endYear,endMonth,endDay);
-
+	QStringList header;  
+	ui.tableWidget->clear();
 	if (IsMultisat)
-	{
-		ui.tableWidget->clear();
-		QStringList header;  
-		header<<QString::fromLocal8Bit("卫星")<<QString::fromLocal8Bit("时间")<<QString::fromLocal8Bit("单错次数")<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
-		ui.tableWidget->setColumnCount(5);   
-		ui.tableWidget->setHorizontalHeaderLabels(header);  
-		ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+	{	
+		header<<QString::fromLocal8Bit("卫星")<<QString::fromLocal8Bit("时间")<<option->paralist.at(0)<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
 	}
 	else
 	{
-		ui.tableWidget->clear();
-		QStringList header;  
 		header<<QString::fromLocal8Bit("参数名称")<<QString::fromLocal8Bit("时间")<<QString::fromLocal8Bit("数量")<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
-		ui.tableWidget->setColumnCount(5);   
-		ui.tableWidget->setHorizontalHeaderLabels(header);  
-		ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-	}
+	}	
+	ui.tableWidget->setColumnCount(5);   
+	ui.tableWidget->setHorizontalHeaderLabels(header);  
+	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 	if (ui.gridLayout->itemAt(0)!=NULL)
 	{
 		ui.gridLayout->removeWidget(viewer);
@@ -1101,7 +1061,7 @@ void curve::setCompleter(const QString &text) {
 	QSqlQuery query(*sql.db);	
 
 
-	QString strsql= "select * from PARAMETER where SATELLITENO like '"+text+"'";
+	QString strsql= "select * from SATELLITE_PUBLIC where SATELLITENO like '"+text+"'";
 	query.exec(strsql);
 	if (query.next())return;
 

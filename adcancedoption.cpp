@@ -23,7 +23,7 @@ Adcancedoption::Adcancedoption(QWidget *parent)
 void Adcancedoption::initUI()
 {
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
 	while(query.next())
 	{
@@ -49,7 +49,7 @@ void Adcancedoption::initUI()
 	namelist->append(QString::fromLocal8Bit("复位原因"));	
 	namelist->append(QString::fromLocal8Bit("单错次数"));	
 	namelist->append(QString::fromLocal8Bit("发生错误的IO或RAM或ROM地址"));	
-	namelist->append(QString::fromLocal8Bit("陷阱（Trap)类型"));	
+	namelist->append(QString::fromLocal8Bit("陷阱类型"));	
 	namelist->append(QString::fromLocal8Bit("切机标志"));	
 	namelist->append(QString::fromLocal8Bit("加电标志"));	
 	namelist->append(QString::fromLocal8Bit("SRAM单错累计次数"));	
@@ -68,9 +68,9 @@ void Adcancedoption::initUI()
 	namelist->append(QString::fromLocal8Bit("MRAM双错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM单错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM错误计数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH错误计数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	namelist->append(QString::fromLocal8Bit("同步故障类型"));	
 
 	QHBoxLayout *hlayout = new QHBoxLayout;
@@ -420,6 +420,18 @@ void Adcancedoption::on_okButton_clicked()
 			}
 		}
 	}
+	if (IssiftID==true)
+	{
+		strzone=QString::fromLocal8Bit("经纬度编号：")+QString::number(longitudeID)+","+QString::number(latitudeID); 
+	}
+	else if(IssiftPosition==true)
+	{
+		strzone= QString::fromLocal8Bit("经纬度区域：")+QString::number(startPointLongitude)+","+QString::number(startPointLatitude)+";"+QString::number(endPointLongitude)+","+QString::number(endPointLatitude); 
+	}
+	else 
+	{
+		strzone= QString::fromLocal8Bit("全球");
+	}
 	emit getsql(sqllist);
 	this->hide();
 }
@@ -479,7 +491,12 @@ void  Adcancedoption::on_delButton_clicked()
 }
 void  Adcancedoption::on_addButton_2_clicked()
 {
-
+	int currentsatcount=ui.selectlistWidget->count();
+	if (currentsatcount<1)
+	{
+		QMessageBox::information(this,QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("请先选择卫星"));
+		return;
+	}
 	int currentcount=ui.selectlistWidget_2->count();
 	if (ui.radioButton->isChecked())
 	{
@@ -491,11 +508,15 @@ void  Adcancedoption::on_addButton_2_clicked()
 		for (int j=0;j<currentcount;j++)
 		{
 			if (ui.selectlistWidget_2->item(j)->text()==list[i]->text())
-			return;
+			continue;
 		}
 		if (ui.radioButton->isChecked())
 		{
-			if(i==1) return;
+			if(i==1) 
+			{
+				QMessageBox::information(this,QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("当前只允许选择一组参数"));
+				return;
+			}
 		}
 		ui.selectlistWidget_2->addItem(list[i]->text());
 	}
@@ -608,6 +629,7 @@ void Adcancedoption::on_enddateButton_clicked()
 		ui.enddateEdit->setText(dateDlg->strDate);;
 	}
 }
+
 Adcancedoption::~Adcancedoption()
 {
 

@@ -22,18 +22,41 @@ ComponentManagement::ComponentManagement(QWidget *parent)
 void ComponentManagement::initUI()
 {
 	ui.comboBox->clear();
+	ui.comboBox_2->clear();
 	QSqlQuery query(*sql.db);
 	query.exec("select*from PARAMETER order by ID");
 	QStringList list;
-	QString lastChip;
+	bool Isexist;
 	while(query.next())
 	{
-		if(lastChip!=query.value(3).toString())
-			list.append(query.value(3).toString());
-		lastChip=query.value(3).toString();
-
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+			list.append(query.value(1).toString());
+		Isexist=false;
+	}
+	Isexist=false;
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
+	QStringList satlist;
+	while(query.next())
+	{
+		for (int i=0;i<satlist.count();i++)
+		{
+			if (query.value(1).toString()==satlist.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			satlist.append(query.value(1).toString());
+		}
+		Isexist=false;
 	}
 	ui.comboBox->addItems(list);
+	ui.comboBox_2->addItems(satlist);
+	ui.comboBox_2->setEnabled(false);
 }
 QStringList CSVLists; 
 void ComponentManagement::on_openButton_clicked()
@@ -64,9 +87,9 @@ void ComponentManagement::on_openButton_clicked()
 		return;
 	}
 	QStringList header;  
-	header<<QString::fromLocal8Bit("卫星编号")<<QString::fromLocal8Bit("轨道高度")<<QString::fromLocal8Bit("芯片名称")<<QString::fromLocal8Bit("规格")<<QString::fromLocal8Bit("封装")<<QString::fromLocal8Bit("额定电压")<<QString::fromLocal8Bit("额定电流")<<QString::fromLocal8Bit("抗辐射指标");  //<<"Height"
+	header<<QString::fromLocal8Bit("芯片名称")<<QString::fromLocal8Bit("规格")<<QString::fromLocal8Bit("封装")<<QString::fromLocal8Bit("额定电压")<<QString::fromLocal8Bit("总剂量")<<QString::fromLocal8Bit("单粒子翻转")<<QString::fromLocal8Bit("单粒子锁定")<<QString::fromLocal8Bit("厂家")<<QString::fromLocal8Bit("备注");  //<<"Height"
 	ui.tableWidget->setRowCount(CSVLists.size()-1);
-	ui.tableWidget->setColumnCount(8);  
+	ui.tableWidget->setColumnCount(9);  
 	ui.tableWidget->setHorizontalHeaderLabels(header);  
 	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 	int row=0;
@@ -75,14 +98,17 @@ void ComponentManagement::on_openButton_clicked()
 		if (row!=0)
 		{
 			QStringList info = str.split(",");
-			ui.tableWidget->setItem(row-1,0,new QTableWidgetItem(info[0]));  
-			ui.tableWidget->setItem(row-1,1,new QTableWidgetItem(info[1]));  
-			ui.tableWidget->setItem(row-1,2,new QTableWidgetItem(info[2]));  
-			ui.tableWidget->setItem(row-1,3,new QTableWidgetItem(info[3]));  
-			ui.tableWidget->setItem(row-1,4,new QTableWidgetItem(info[4]));  
-			ui.tableWidget->setItem(row-1,5,new QTableWidgetItem(info[5]));  
-			ui.tableWidget->setItem(row-1,6,new QTableWidgetItem(info[6]));  
-			ui.tableWidget->setItem(row-1,7,new QTableWidgetItem(info[7]));  
+			for (int i=0;i<9;i++)
+			{
+				ui.tableWidget->setItem(row-1,i,new QTableWidgetItem(info[i]));  
+			}	
+			//ui.tableWidget->setItem(row-1,1,new QTableWidgetItem(info[1]));  
+			//ui.tableWidget->setItem(row-1,2,new QTableWidgetItem(info[2]));  
+			//ui.tableWidget->setItem(row-1,3,new QTableWidgetItem(info[3]));  
+			//ui.tableWidget->setItem(row-1,4,new QTableWidgetItem(info[4]));  
+			//ui.tableWidget->setItem(row-1,5,new QTableWidgetItem(info[5]));  
+			//ui.tableWidget->setItem(row-1,6,new QTableWidgetItem(info[6]));  
+			//ui.tableWidget->setItem(row-1,7,new QTableWidgetItem(info[7]));  
 		}
 		row++;
 	}
@@ -97,10 +123,10 @@ void ComponentManagement::on_inputButton_clicked()
 	{ 
 		QStringList info = str.split(",");
 		QSqlQuery query(*sql.db);
-		query.exec("select*from PARAMETER where SATELLITENO  ='"+info[0]+"'");//and DATETIME = '"+info[0]+"'"
+		query.exec("select*from PARAMETER where  CHIPNAME  ='"+info[0]+"'");
 		if(query.next())
 		{
-			QMessageBox::information(this,QString::fromLocal8Bit("警告"),info[0]+QString::fromLocal8Bit("卫星已存在"));
+			QMessageBox::information(this,QString::fromLocal8Bit("警告"),info[0]+QString::fromLocal8Bit("已存在"));
 			return;
 		}
 	}
@@ -117,8 +143,9 @@ void ComponentManagement::on_inputButton_clicked()
 	QString time ;
 	QString satelliteNo ;
 	querypara.prepare("INSERT INTO PARAMETER "
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 	int row=0;
+	bool IsSuccess;
 	Q_FOREACH(QString str, CSVLists) 
 	{ 
 		if (row!=0)
@@ -133,17 +160,21 @@ void ComponentManagement::on_inputButton_clicked()
 			querypara.bindValue(6, info[5]);
 			querypara.bindValue(7, info[6]);
 			querypara.bindValue(8, info[7]);
-			querypara.exec();
+			querypara.bindValue(9, info[8]);
+			IsSuccess = querypara.exec();
 			totalcount++;
 		}
 		row++;
 	}
-	QString str = str.fromLocal8Bit("提示");
-	QString str2 = str.fromLocal8Bit("导入成功！");
-	QMessageBox::information(this,str,str2);
-	initUI();
+	if (IsSuccess)
+	{
+		QString str = str.fromLocal8Bit("提示");
+		QString str2 = str.fromLocal8Bit("导入成功！");
+		QMessageBox::information(this,str,str2);
+		initUI();
+		emit refresh(str);
+	}
 	//query.exec("DELETE *FROM Satellite");删除
-	emit refresh(str);
 	Isfresh=true;
 }
 void ComponentManagement::on_previewButton_clicked()
@@ -153,9 +184,9 @@ void ComponentManagement::on_previewButton_clicked()
 		return;
 	}
 	QStringList header;  
-	header<<QString::fromLocal8Bit("卫星编号")<<QString::fromLocal8Bit("轨道高度")<<QString::fromLocal8Bit("芯片名称")<<QString::fromLocal8Bit("规格")<<QString::fromLocal8Bit("封装")<<QString::fromLocal8Bit("额定电压")<<QString::fromLocal8Bit("额定电流")<<QString::fromLocal8Bit("抗辐射指标");  //<<"Height"
+	header<<QString::fromLocal8Bit("芯片名称")<<QString::fromLocal8Bit("规格")<<QString::fromLocal8Bit("封装")<<QString::fromLocal8Bit("额定电压")<<QString::fromLocal8Bit("总剂量")<<QString::fromLocal8Bit("单粒子翻转")<<QString::fromLocal8Bit("单粒子锁定")<<QString::fromLocal8Bit("厂家")<<QString::fromLocal8Bit("备注");  //<<"Height"
 	ui.tableWidget->setRowCount(CSVLists.size()-1);
-	ui.tableWidget->setColumnCount(8);  
+	ui.tableWidget->setColumnCount(9);  
 	ui.tableWidget->setHorizontalHeaderLabels(header);  
 	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 	int row=0;
@@ -164,14 +195,10 @@ void ComponentManagement::on_previewButton_clicked()
 		if (row!=0)
 		{
 			QStringList info = str.split(",");
-			ui.tableWidget->setItem(row-1,0,new QTableWidgetItem(info[0]));  
-			ui.tableWidget->setItem(row-1,1,new QTableWidgetItem(info[1]));  
-			ui.tableWidget->setItem(row-1,2,new QTableWidgetItem(info[2]));  
-			ui.tableWidget->setItem(row-1,3,new QTableWidgetItem(info[3]));  
-			ui.tableWidget->setItem(row-1,4,new QTableWidgetItem(info[4]));  
-			ui.tableWidget->setItem(row-1,5,new QTableWidgetItem(info[5]));  
-			ui.tableWidget->setItem(row-1,6,new QTableWidgetItem(info[6]));  
-			ui.tableWidget->setItem(row-1,7,new QTableWidgetItem(info[7]));  
+			for (int i=0;i<9;i++)
+			{
+				ui.tableWidget->setItem(row-1,i,new QTableWidgetItem(info[i]));  
+			}	
 		}
 		row++;
 	}
@@ -208,48 +235,6 @@ void ComponentManagement::on_outButton_clicked()
 		QString msg="保存失败！\n\r"+OdbcExcel::getError();
 		QMessageBox::critical(this,str,tr(msg.toUtf8()));
 	}
-	/*QSqlQueryModel *model=new QSqlQueryModel();
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Excel file"), qApp->applicationDirPath (),
-	tr("Excel Files (*.xls)"));
-	if (fileName.isEmpty())
-	return;
-
-	ExportExcelObject obj(fileName, "mydata", ui.tableView_2);
-
-	obj.addField(0, tr("ID"), "char(20)");
-	obj.addField(1, tr("DateTime"), "char(20)");
-	obj.addField(2, tr("Count"), "char(20)");
-	obj.addField(3, tr("Longitude"), "char(20)");
-	obj.addField(4, tr("Latitude"), "char(20)");
-	obj.addField(5, tr("Height"), "char(20)");
-	obj.addField(6, tr("Sun_x"), "char(20)");
-	obj.addField(7, tr("Sun_y"), "char(20)");
-	obj.addField(8, tr("Sun_z"), "char(20)");
-	obj.addField(9, tr("Sun_s"), "char(20)");
-	obj.addField(10, tr("SatelliteNo"), "char(20)");
-
-	int retVal = obj.export2Excel();
-	if( retVal > 0)
-	{
-
-		QMessageBox::information(this, tr("Done"),
-			QString(tr("%1 records exported!")).arg(retVal)
-			);
-	}*/
-
-
-
-	/*QString line_0("0, aaa, 000\n"); 
-	QString line_1("1, bbb, 111\n"); 
-	QString line_2("2, ccc, 222\n"); 
-
-	if (csvFile.open(QIODevice::ReadWrite)) 
-	{ 
-	csvFile.write(line_0.toAscii()); 
-	csvFile.write(line_1.toAscii()); 
-	csvFile.write(line_2.toAscii()); 
-	csvFile.close(); 
-	} */
 }
 void ComponentManagement::on_queryButton_clicked()
 {
@@ -259,27 +244,56 @@ void ComponentManagement::on_queryButton_clicked()
 void ComponentManagement::on_previewButton_2_clicked()
 {
 	QString strChipName = ui.comboBox->currentText();
+	QString strSatName = ui.comboBox_2->currentText();
 	QSqlQueryModel *model=new QSqlQueryModel();
-	QString strsql = "select * from PARAMETER where CHIPNAME = '"+strChipName+"' order by ID";
-		////#"+str1+"# and #"+str2+"#"
+	QString strsql;
+	QStringList chipList;
+	if (ui.radioButton->isChecked())
+	{
+		 strsql= "select * from PARAMETER where CHIPNAME = '"+strChipName+"' order by ID";
+	}
+	else
+	{
+		QSqlQuery query(*sql.db);
+		query.exec("select*from SATELLITE_PUBLIC where SATELLITENO = '"+strSatName+"' order by ID");
+		while(query.next())
+		{
+			chipList.append(query.value(3).toString());
+		}
+		int count =chipList.count();
+		if(count==1)
+			strsql= "select * from PARAMETER where CHIPNAME = '"+chipList.at(0)+"' order by ID";
+		if (count>1)
+		{
+			strsql= "select * from PARAMETER where ";
+			for (int i=0;i<count;i++)
+			{
+				strsql +="CHIPNAME = '"+chipList.at(i)+"'";
+				if(i!=count-1)
+				strsql +=" or ";
+			}
+		}
+	}
 	model->setQuery(strsql,*sql.db);
 	model->setHeaderData(0,Qt::Horizontal,tr("ID"));
-	QString str = str.fromLocal8Bit("卫星编号");
+	QString str = str.fromLocal8Bit("芯片名称");
 	model->setHeaderData(1,Qt::Horizontal,str);
-	str = str.fromLocal8Bit("轨道高度");
-	model->setHeaderData(2,Qt::Horizontal,str);
-	str = str.fromLocal8Bit("芯片名称");
-	model->setHeaderData(3,Qt::Horizontal,str);
 	str = str.fromLocal8Bit("规格");
-	model->setHeaderData(4,Qt::Horizontal,str);
+	model->setHeaderData(2,Qt::Horizontal,str);
 	str = str.fromLocal8Bit("封装");
-	model->setHeaderData(5,Qt::Horizontal,str);
+	model->setHeaderData(3,Qt::Horizontal,str);
 	str = str.fromLocal8Bit("额定电压");
+	model->setHeaderData(4,Qt::Horizontal,str);
+	str = str.fromLocal8Bit("总剂量");
+	model->setHeaderData(5,Qt::Horizontal,str);
+	str = str.fromLocal8Bit("单粒子翻转");
 	model->setHeaderData(6,Qt::Horizontal,str);
-	str = str.fromLocal8Bit("额定电流");
+	str = str.fromLocal8Bit("单粒子锁定");
 	model->setHeaderData(7,Qt::Horizontal,str);
-	str = str.fromLocal8Bit("抗辐射指标");
+	str = str.fromLocal8Bit("厂家");
 	model->setHeaderData(8,Qt::Horizontal,str);
+	str = str.fromLocal8Bit("备注");
+	model->setHeaderData(9,Qt::Horizontal,str);
 	ui.tableView_2->setModel(model);
 	ui.tableView_2->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
@@ -289,6 +303,22 @@ void ComponentManagement::DisableInput()
 	ui.inputButton->setEnabled(false);
 	//ui.previewButton->setEnabled(false);
 	ui.openButton->setEnabled(false);
+}
+void ComponentManagement::on_radioButton_clicked()
+{
+	if (ui.radioButton->isChecked())
+	{
+		ui.comboBox_2->setEnabled(false);
+		ui.comboBox->setEnabled(true);
+	}
+}
+void ComponentManagement::on_radioButton_2_clicked()
+{
+	if (ui.radioButton_2->isChecked())
+	{
+		ui.comboBox->setEnabled(false);
+		ui.comboBox_2->setEnabled(true);
+	}
 }
 ComponentManagement::~ComponentManagement()
 {

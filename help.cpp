@@ -18,7 +18,7 @@ void help::on_commandLinkButton_clicked()
 {
 	QString strfile;
 	strfile = QCoreApplication::applicationDirPath();
-	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统需求分析.docx");
+	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统需求分析.doc");
 	strPath=strfile+strPath;
 	QDesktopServices::openUrl ( QUrl::fromLocalFile(strPath));
 }
@@ -26,7 +26,7 @@ void help::on_commandLinkButton_2_clicked()
 {
 	QString strfile;
 	strfile = QCoreApplication::applicationDirPath();
-	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统设计报告.docx");
+	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统设计报告.doc");
 	strPath=strfile+strPath;
 	QDesktopServices::openUrl ( QUrl::fromLocalFile(strPath));
 }
@@ -34,7 +34,7 @@ void help::on_commandLinkButton_3_clicked()
 {
 	QString strfile;
 	strfile = QCoreApplication::applicationDirPath();
-	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统测试细则.docx");
+	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统测试细则.doc");
 	strPath=strfile+strPath;
 	QDesktopServices::openUrl ( QUrl::fromLocalFile(strPath));
 }
@@ -42,7 +42,7 @@ void help::on_commandLinkButton_4_clicked()
 {
 	QString strfile;
 	strfile = QCoreApplication::applicationDirPath();
-	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统测试报告.docx");
+	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统测试报告.doc");
 	strPath=strfile+strPath;
 	QDesktopServices::openUrl ( QUrl::fromLocalFile(strPath));
 }
@@ -50,7 +50,7 @@ void help::on_commandLinkButton_5_clicked()
 {
 	QString strfile;
 	strfile = QCoreApplication::applicationDirPath();
-	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统使用说明书.docx");
+	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统使用说明书.doc");
 	strPath=strfile+strPath;
 	QDesktopServices::openUrl ( QUrl::fromLocalFile(strPath));
 }
@@ -58,7 +58,7 @@ void help::on_commandLinkButton_6_clicked()
 {
 	QString strfile;
 	strfile = QCoreApplication::applicationDirPath();
-	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统研制总结报告.docx");
+	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统研制总结报告.doc");
 	strPath=strfile+strPath;
 	QDesktopServices::openUrl ( QUrl::fromLocalFile(strPath));
 }

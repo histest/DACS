@@ -6,6 +6,7 @@
 #include"mycutimagewidget.h"
 #include "mydefine.h"
 #include <vector>  
+#include <osgQt/GraphicsWindowQt>
 using namespace std;
 vector <QString> veSat; 
 extern bool Isfresh;
@@ -34,10 +35,11 @@ osgdisplay::osgdisplay(QWidget *parent)
 }
 void osgdisplay::initUI()
 {
+
 	veSat.clear();
 	this->ui.comboBox->clear();
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
 	while(query.next())
 	{
@@ -47,10 +49,6 @@ void osgdisplay::initUI()
 	this->ui.comboBox->addItems(list);
 	onChanged();
 	satellitecount =0;
-	osg::Group*	Root  = new osg::Group;
-	viewWidget = new ViewerWidget(osgViewer::ViewerBase::SingleThreaded,Root);
-	ui.gridLayout->addWidget(viewWidget);
-
 	IssiftPosition=false;
 	IssiftID=false;
 	Isblank=true;
@@ -59,14 +57,27 @@ void osgdisplay::initUI()
 	ui.tableWidget->setColumnCount(5);  
 	ui.tableWidget->setHorizontalHeaderLabels(header);  
 	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+
+
+	osg::Group*	Root  = new osg::Group;
+	viewWidget = new ViewerWidget(osgViewer::ViewerBase::CullDrawThreadPerContext,Root);
+	viewWidget->setAttribute(Qt::WA_QuitOnClose,false);
+	viewWidget->setWindowTitle(QString::fromLocal8Bit("三维演示"));
+	viewWidget->setWindowFlags(Qt::Window|Qt::WindowStaysOnTopHint);//
 	viewWidget->view->addEventHandler( new osgViewer::StatsHandler );
 	viewWidget->view->setCameraManipulator( new osgGA::TrackballManipulator );
 	pickhandler = new CPickHandler((viewWidget->updateText.get()));
 	pickhandler->tubeWellNode=NULL;
 	pickhandler->lastTubeWellNode=NULL;
 	pickhandler->pickcount=0;
-	viewWidget->view->getEventHandlers().push_front(pickhandler);//new CPickHandler(mViewer));
+	viewWidget->view->getEventHandlers().push_front(pickhandler);
 	viewWidget->view->setSceneData(InitSceneGraph());
+	viewWidget->setGeometry( 510, 230, 640, 470 );
+	viewWidget->show();
+	Sleep(100);
+	viewWidget->hide();
+	//ui.gridLayout->addWidget(viewWidget);
+	//glw->show();
 
 	QStringList*namelist = new QStringList;
 	namelist->append(QString::fromLocal8Bit("累计复位次数"));
@@ -74,7 +85,7 @@ void osgdisplay::initUI()
 	namelist->append(QString::fromLocal8Bit("复位原因"));	
 	namelist->append(QString::fromLocal8Bit("单错次数"));	
 	namelist->append(QString::fromLocal8Bit("发生错误的IO或RAM或ROM地址"));	
-	namelist->append(QString::fromLocal8Bit("陷阱（Trap)类型"));	
+	namelist->append(QString::fromLocal8Bit("陷阱类型"));	
 	namelist->append(QString::fromLocal8Bit("切机标志"));	
 	namelist->append(QString::fromLocal8Bit("加电标志"));	
 	namelist->append(QString::fromLocal8Bit("SRAM单错累计次数"));	
@@ -93,9 +104,9 @@ void osgdisplay::initUI()
 	namelist->append(QString::fromLocal8Bit("MRAM双错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM单错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM错误计数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH错误计数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	namelist->append(QString::fromLocal8Bit("同步故障类型"));	
 	ui.comboBox_3->addItems(*namelist);
 }
@@ -103,7 +114,7 @@ void osgdisplay::refresh()
 {
 	this->ui.comboBox->clear();
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
 	while(query.next())
 	{
@@ -406,7 +417,7 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 		if (!IsMultisat)
 		{
 			strSat	=satlist.at(0);
-		//	satelliteNo[k] = paralist.at(k);
+			satelliteNo[k] = paralist.at(k);
 			strPara = paralist.at(k);
 		}
 		query.exec(sqllist.at(k));
@@ -439,7 +450,7 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 			//HLB.Latitude =latitude;
 			tempData[coordinateX][coordinateY]+=faultcount;
 		}
-		QString strsql2= "select * from PARAMETER where SATELLITENO = '"+strSat+"'order by ID";
+		QString strsql2= "select * from SATELLITE_PUBLIC where SATELLITENO = '"+strSat+"'order by ID";
 		query.exec(strsql2);
 		while(query.next())
 		{
@@ -476,10 +487,11 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 						longitude=longitude-360;
 					}
 					ui.tableWidget->insertRow(row);
-					ui.tableWidget->setItem(row,0,new QTableWidgetItem(strSat));
+					ui.tableWidget->setItem(row,0,new QTableWidgetItem(satelliteNo[k]));
 					ui.tableWidget->setItem(row,1,new QTableWidgetItem(QString::number(p)+","+QString::number(q))); 
 					ui.tableWidget->setItem(row,2,new QTableWidgetItem(QString::number(faultcount))); 
-					ui.tableWidget->setItem(row,3,new QTableWidgetItem(QString::number(faultcount*100/totalcount[k])+"%")); 
+					if(totalcount>0)
+						ui.tableWidget->setItem(row,3,new QTableWidgetItem(QString::number(faultcount*100/totalcount[k])+"%")); 
 					ui.tableWidget->setItem(row,4,new QTableWidgetItem(QString::number(longitude)+","+QString::number(latitude))); 
 					row++;
 
@@ -499,8 +511,16 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 					osg::ref_ptr<osg::TessellationHints> hints = new osg::TessellationHints;
 					hints->setDetailRatio(0.2f);
 					osg::ref_ptr<osg::ShapeDrawable> shape; 
-
-					shape = new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(FixPosition[0],FixPosition[1],FixPosition[2]),fabs(faultcount)* 50000.0),hints);
+					double tempcount = 0;
+					if (fabs(faultcount)>15)
+					{
+						tempcount=15;
+					}
+					else
+					{
+						tempcount=faultcount;
+					}
+					shape = new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(FixPosition[0],FixPosition[1],FixPosition[2]),fabs(tempcount)* 50000.0),hints);
 					shape->setColor(osg::Vec4f (0.3*k+0.5, 1-0.2*k, 0.2, 1.0)) ;
 					spheregeode->addDrawable(shape.get()); 
 
@@ -591,7 +611,7 @@ void osgdisplay::DisplayOSG()
 	ui.tableWidget->clear();
 	Isblank=false;
 	QStringList header;  
-	header<<QString::fromLocal8Bit("卫星")<<QString::fromLocal8Bit("区域编号")<<QString::fromLocal8Bit("单错次数")<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域中心经纬度"); 
+	header<<QString::fromLocal8Bit("卫星")<<QString::fromLocal8Bit("区域编号")<<ui.comboBox_3->currentText()<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
 	ui.tableWidget->setColumnCount(5);  
 	ui.tableWidget->setHorizontalHeaderLabels(header);  
 	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
@@ -610,9 +630,12 @@ void osgdisplay::DisplayOSG()
 	QString startDate=ui.startdateEdit->text();//ui.dateTimeEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
 	QString endDate=ui.enddateEdit->text();//ui.dateTimeEdit_2->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
 
+	satlist.clear();
+	paralist.clear();
 	QString strSat = ui.comboBox->currentText();
 	QString strsql;
 	QString strpara = ui.comboBox_3->currentText();
+
 	paralist.append(strpara);
 	satlist.append(strSat);
 
@@ -636,19 +659,45 @@ void osgdisplay::DisplayOSG()
 	//	strsql =  QString("select  %1 ,LONGITUDE, LATITUDE  from SATELLITE where SATELLITENO = '"+strSat+"' and DATETIME between #"+startDate+"# and #"+endDate+"# ").arg(strpara);
 	//}
 	sqllist.append(strsql);
-	//ui.gridLayout->removeWidget(viewWidget);
+	viewWidget->view->setSceneData(NULL);
+	//viewWidget->close();
+	/*viewWidget = new ViewerWidget(osgViewer::ViewerBase::CullDrawThreadPerContext,NULL);
+	viewWidget->setAttribute(Qt::WA_QuitOnClose,false);
+	viewWidget->setWindowTitle(QString::fromLocal8Bit("三维演示"));*/
+
 	viewWidget->view->addEventHandler( new osgViewer::StatsHandler );
 	viewWidget->view->setCameraManipulator( new osgGA::TrackballManipulator );
-
-	viewWidget->view->removeEventHandler(pickhandler);
 	pickhandler = new CPickHandler((viewWidget->updateText.get()));
 	pickhandler->tubeWellNode=NULL;
 	pickhandler->lastTubeWellNode=NULL;
 	pickhandler->pickcount=0;
-
-	viewWidget->view->getEventHandlers().push_front(pickhandler);//new CPickHandler(mViewer));
-
+	viewWidget->view->getEventHandlers().push_front(pickhandler);
 	viewWidget->view->setSceneData(InitSceneGraph());
+	viewWidget->setGeometry( 510, 230, 640, 470 );
+	viewWidget->show();
+	//
+	//viewWidget->view->addEventHandler( new osgViewer::StatsHandler );
+	//viewWidget->view->setCameraManipulator( new osgGA::TrackballManipulator );
+	//pickhandler = new CPickHandler((viewWidget->updateText.get()));
+	//pickhandler->tubeWellNode=NULL;
+	//pickhandler->lastTubeWellNode=NULL;
+	//pickhandler->pickcount=0;
+	//viewWidget->view->getEventHandlers().push_front(pickhandler);
+	//viewWidget->view->setSceneData(InitSceneGraph());
+	Sleep(1500);
+	//ui.gridLayout->addWidget(viewWidget);
+	//viewWidget->view->addEventHandler( new osgViewer::StatsHandler );
+	//viewWidget->view->setCameraManipulator( new osgGA::TrackballManipulator );
+
+	//viewWidget->view->removeEventHandler(pickhandler);
+	//pickhandler = new CPickHandler((viewWidget->updateText.get()));
+	//pickhandler->tubeWellNode=NULL;
+	//pickhandler->lastTubeWellNode=NULL;
+	//pickhandler->pickcount=0;
+
+	
+
+	//viewWidget->view->setSceneData(InitSceneGraph());
 /*	ui.gridLayout->addWidget(viewWidget);*/
 	Discount++;
 }
@@ -680,6 +729,7 @@ void osgdisplay::on_outButton_clicked()
 {
 	MyCutImageWidget *m_cutimage;
 	m_cutimage = new MyCutImageWidget(this);
+	m_cutimage->setWindowFlags(Qt::Window|Qt::WindowStaysOnTopHint);
 	m_cutimage->setWindowOpacity(0.2);
 	m_cutimage->showFullScreen();
 }
@@ -771,8 +821,22 @@ void osgdisplay::setsql(QStringList strlist)
 		paralist.append(option->paralist.at(i));
 	}
 
-
+	QStringList header;  
+	ui.tableWidget->clear();
+	if (IsMultisat)
+	{	
+		header<<QString::fromLocal8Bit("卫星")<<QString::fromLocal8Bit("区域编号")<<option->paralist.at(0)<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
+	}
+	else
+	{
+		header<<QString::fromLocal8Bit("参数名称")<<QString::fromLocal8Bit("区域编号")<<QString::fromLocal8Bit("数量")<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
+	}
+	ui.tableWidget->setColumnCount(5);   
+	ui.tableWidget->setHorizontalHeaderLabels(header);  
+	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 	Isblank=false;
+	//viewWidget->close();
+	viewWidget->show();
 	viewWidget->view->addEventHandler( new osgViewer::StatsHandler );
 	viewWidget->view->setCameraManipulator( new osgGA::TrackballManipulator );
 	viewWidget->view->removeEventHandler(pickhandler);
@@ -800,7 +864,7 @@ void osgdisplay::setCompleter(const QString &text) {
 	QSqlQuery query(*sql.db);	
 
 
-	QString strsql= "select * from PARAMETER where SATELLITENO like '"+text+"'";
+	QString strsql= "select * from SATELLITE_PUBLIC where SATELLITENO like '"+text+"'";
 	query.exec(strsql);
 	if (query.next())return;
 

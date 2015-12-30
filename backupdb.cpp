@@ -1,41 +1,104 @@
 #include "backupdb.h"
 #include "connectsql.h"
+#include <vector>  
+using namespace std;
 extern ConnectSql sql;
+vector <QString> vectorSat; 
 Backupdb::Backupdb(QWidget *parent)
 	: QDialog(parent)
 {
+
 	ui.setupUi(this);
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list,list2;
 	QString lastChip;
+	vectorSat.clear();
 	while(query.next())
 	{
 		list.append(query.value(1).toString());
-
+		vectorSat.push_back(query.value(1).toString());
 	}
 	this->ui.comboBox->addItems(list);
 
 	ui.comboBox_2->clear();
 	list.clear();
 	query.exec("select*from PARAMETER order by ID");
+	bool Isexist;
 	while(query.next())
 	{
-		if(lastChip!=query.value(3).toString())
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(3).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
 			list.append(query.value(3).toString());
-		lastChip=query.value(3).toString();
-
+		Isexist=false;
 	}
 	ui.comboBox_2->addItems(list);
 
 	QString strfile;
 	strfile = QCoreApplication::applicationDirPath();
-	QString path = strfile+"/OracleBackup.accdb"; 
+	QString path = strfile+"/Backup.accdb"; 
 	ui.lineEdit->setText(path);
 	setStyleSheet("QHeaderView::section {background-color:white;color: black;padding-left: 4px;border: 1px solid #6c6c6c;};"
 		"color: white;padding-left: 4px;border: 1px solid #6c6c6c;}"
 		"QHeaderView::section:checked{background-color: white;color: black;}");	
 
+	namelistview = new QListView(this);
+	model = new QStringListModel(this);
+	namelistview->setWindowFlags(Qt::ToolTip);
+	installEventFilter(namelistview);
+	connect(namelistview, SIGNAL(clicked(const QModelIndex &)), this, SLOT(completeText(const QModelIndex &)));
+	connect(ui.comboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(setCompleter(const QString &)));
+
+	QStringList*namelist = new QStringList;
+	namelist->append(QString::fromLocal8Bit("累计复位次数"));
+	namelist->append(QString::fromLocal8Bit("连续复位次数"));
+	namelist->append(QString::fromLocal8Bit("复位原因"));	
+	namelist->append(QString::fromLocal8Bit("单错次数"));	
+	namelist->append(QString::fromLocal8Bit("发生错误的IO或RAM或ROM地址"));	
+	namelist->append(QString::fromLocal8Bit("陷阱类型"));	
+	namelist->append(QString::fromLocal8Bit("切机标志"));	
+	namelist->append(QString::fromLocal8Bit("加电标志"));	
+	namelist->append(QString::fromLocal8Bit("SRAM单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("PROM单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("SRAM双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("PROM双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("ROM状态标志"));	
+	namelist->append(QString::fromLocal8Bit("RAM状态标志"));	
+	namelist->append(QString::fromLocal8Bit("EEPROM状态标志"));	
+	namelist->append(QString::fromLocal8Bit("发生错误的地址区域"));	
+	namelist->append(QString::fromLocal8Bit("EEPROM错误地址"));	
+	namelist->append(QString::fromLocal8Bit("EEPROM双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("EEPROM单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("EEPROM错误次数"));	
+	namelist->append(QString::fromLocal8Bit("MRAM双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("MRAM单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("MRAM错误计数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
+	namelist->append(QString::fromLocal8Bit("同步故障类型"));
+
+	ui.comboBox_3->clear();
+	query.exec("select*from DICTIONARY order by ID");
+    list.clear();
+	while(query.next())
+	{
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+			list.append(query.value(1).toString());
+		//vtpara.push_back(query.value(1).toString());
+		Isexist=false;
+	}
+	ui.comboBox_3->addItems(list);
 }
 void Backupdb::on_backupButton_clicked()
 {
@@ -44,17 +107,17 @@ void Backupdb::on_backupButton_clicked()
 	sourcedir+="/DACS.accdb";  
 
 	todir.replace("\\","/");  
-	QFile::copy(sourcedir, todir);
+	//QFile::copy(sourcedir, todir);
 	if (sql.dboracle==true)
 	{		
 		oraclebackup();
 	}
 	else
 	{
-
-		QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("备份成功！"), QMessageBox::Yes);
+		
 	}
 
+//	QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("备份成功！"), QMessageBox::Yes);
 }
 void Backupdb::on_openButton_clicked()
 {
@@ -123,8 +186,17 @@ void Backupdb::oraclebackup()
 	query.exec("delete*from SOURCEDATA");	
 	query.exec("delete*from PARAMETER");
 	query.exec("delete*from USERS");
-
+	query.exec("delete*from DICTIONARY");
+	query.exec("delete*from SATELLITE_PUBLIC");
 	QString strSat =ui.comboBox->currentText();
+
+
+	query.exec("delete*from SATELLITE_PUBLIC");
+	query.prepare("INSERT INTO SATELLITE_PUBLIC VALUES (?, ?, ?)");
+	query.bindValue(0,0);
+	query.bindValue(1,strSat);
+	query.bindValue(2,500);
+	query.exec();
 
 	QString startDate=ui.dateTimeEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
 	QString endDate=ui.dateTimeEdit_2->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
@@ -141,7 +213,8 @@ void Backupdb::oraclebackup()
 	QSqlQuery querysat(*sql.db);
 	bool bquery=querysat.exec(strsql);
 	if (!bquery)
-	{
+	{		
+		return;
 		QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("失败！"), QMessageBox::Ok);
 	}
 	while(querysat.next())
@@ -184,7 +257,10 @@ void Backupdb::oraclebackup()
 		}
 	}
 	QString strChipName = ui.comboBox_2->currentText();
-	querysat.exec("select*from PARAMETER where CHIPNAME = '"+strChipName+"' order by ID");
+	strsql="select*from PARAMETER where CHIPNAME = '"+strChipName+"' order by ID";
+	if (ui.paracheckBox->isChecked())
+		strsql =QString("select * from PARAMETER order by ID");
+	querysat.exec(strsql);
 	while(querysat.next())
 	{
 
@@ -206,6 +282,26 @@ void Backupdb::oraclebackup()
 	{
 
 		query.prepare("INSERT INTO USERS "
+			"VALUES (?, ?, ?, ?)");
+		for (int i=0;i<4;i++)
+		{
+			query.bindValue(i, querysat.value(i));
+		}
+		if(!query.exec())
+		{
+			QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("备份失败！"), QMessageBox::Ok);
+			return;
+		}
+	}
+	QString strname = ui.comboBox_3->currentText();
+	strsql="select*from DICTIONARY where NAME = '"+strname+"' order by ID";
+	if (ui.dictionarycheckBox->isChecked())
+		strsql =QString("select * from DICTIONARY order by ID");
+	querysat.exec(strsql);
+	while(querysat.next())
+	{
+
+		query.prepare("INSERT INTO DICTIONARY "
 			"VALUES (?, ?, ?, ?)");
 		for (int i=0;i<4;i++)
 		{
@@ -257,6 +353,8 @@ void Backupdb::on_previewButton_2_clicked()
 	QString strChipName = ui.comboBox_2->currentText();
 	QSqlQueryModel *model=new QSqlQueryModel();
 	QString strsql = "select * from PARAMETER where CHIPNAME = '"+strChipName+"' order by ID";
+	if (ui.paracheckBox->isChecked())
+		strsql =QString("select * from PARAMETER order by ID");
 	model->setQuery(strsql,*sql.db);
 	model->setHeaderData(0,Qt::Horizontal,tr("ID"));
 	QString str = str.fromLocal8Bit("卫星编号");
@@ -277,6 +375,24 @@ void Backupdb::on_previewButton_2_clicked()
 	model->setHeaderData(8,Qt::Horizontal,str);
 	ui.tableView_2->setModel(model);
 	ui.tableView_2->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+}
+void Backupdb::on_previewButton_3_clicked()
+{
+	QString strName = ui.comboBox_3->currentText();
+	QSqlQueryModel *model=new QSqlQueryModel();
+	QString strsql =QString("select * from DICTIONARY where NAME = '"+strName+"' order by ID");//.arg(QString::fromLocal8Bit("名称"));
+	if (ui.dictionarycheckBox->isChecked())
+		strsql =QString("select * from DICTIONARY order by ID");
+	model->setQuery(strsql,*sql.db);
+	model->setHeaderData(0,Qt::Horizontal,tr("ID"));
+	QString str = str.fromLocal8Bit("名称");
+	model->setHeaderData(1,Qt::Horizontal,str);
+	str = str.fromLocal8Bit("数值");
+	model->setHeaderData(2,Qt::Horizontal,str);
+	str = str.fromLocal8Bit("解释");
+	model->setHeaderData(3,Qt::Horizontal,str);
+	ui.tableView_3->setModel(model);
+	ui.tableView_3->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
 void Backupdb::on_allButton_clicked()
 {
@@ -304,6 +420,88 @@ void Backupdb::on_allButton_clicked()
 	ui.tableView_2->setModel(model);
 	ui.tableView_2->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
+void Backupdb::on_allButton_2_clicked()
+{
+	QString strName = ui.comboBox_3->currentText();
+	QSqlQueryModel *model=new QSqlQueryModel();
+	QString strsql =QString("select * from DICTIONARY order by ID");//.arg(QString::fromLocal8Bit("名称"));
+	model->setQuery(strsql,*sql.db);
+	model->setHeaderData(0,Qt::Horizontal,tr("ID"));
+	QString str = str.fromLocal8Bit("名称");
+	model->setHeaderData(1,Qt::Horizontal,str);
+	str = str.fromLocal8Bit("数值");
+	model->setHeaderData(2,Qt::Horizontal,str);
+	str = str.fromLocal8Bit("解释");
+	model->setHeaderData(3,Qt::Horizontal,str);
+	ui.tableView_3->setModel(model);
+	ui.tableView_3->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+}
+void Backupdb::setCompleter(const QString &text) {
+	namelistview->hide();
+	//disconnect(ui.comboBox,SIGNAL(editTextChanged (const QString & )),this,SLOT(setCompleter(const QString & )));  
+	if (text.isEmpty()) {
+		namelistview->hide();
+		return;
+	}
+
+	if ((text.length() > 1) && (!namelistview->isHidden())) {
+		return;
+	}
+
+	QSqlQuery query(*sql.db);	
+
+
+	QString strsql= "select * from PARAMETER where SATELLITENO like '"+text+"'";
+	query.exec(strsql);
+	if (query.next())return;
+
+	QStringList list;
+	model->setStringList(list);
+	for(int i = 0;i < vectorSat.size();++i){
+
+		if (vectorSat[i].indexOf(text) != -1)
+		{
+
+			list.append(vectorSat[i]);
+		}
+	}
+
+	model->setStringList(list);
+	//	model->setStringList(sl);
+	namelistview->setModel(model);
+
+	if (model->rowCount() == 0) {
+		return;
+	}
+
+	// Position the text edit
+	namelistview->setMinimumWidth(this->width());
+	namelistview->setMaximumWidth(this->width());
+
+	QPoint p(0, this->height());
+	int x = this->mapToGlobal(p).x();
+	int y = this->mapToGlobal(p).y() + 1;
+
+	//listView->move(x, y);
+	namelistview->setGeometry(this->x()+85, this->y()+95, 50, 100);
+	namelistview->resize(100,200);
+	namelistview->setFixedWidth(ui.comboBox->width());
+	namelistview->show();
+	//	connect(ui.comboBox,SIGNAL(editTextChanged (const QString & )),this,SLOT(setCompleter(const QString & )));  
+}
+void Backupdb::completeText(const QModelIndex &index) {
+	QString strName = index.data().toString();
+	for (int i =0;i<ui.comboBox->count();i++)
+	{
+		if (ui.comboBox->itemText(i)==strName)
+		{
+			ui.comboBox->setCurrentIndex(i);
+		}
+	}
+	//ui.comboBox->setEditText(strName);
+	namelistview->hide();
+}
+
 Backupdb::~Backupdb()
 {
 	//dbackup->close();

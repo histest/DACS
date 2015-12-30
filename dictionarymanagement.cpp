@@ -30,40 +30,27 @@ DictionaryManagement::DictionaryManagement(QWidget *parent)
 void DictionaryManagement::initUI()
 {
 	ui.comboBox->clear();
-	QStringList*namelist = new QStringList;
-	namelist->append(QString::fromLocal8Bit("累计复位次数"));
-	namelist->append(QString::fromLocal8Bit("连续复位次数"));
-	namelist->append(QString::fromLocal8Bit("复位原因"));	
-	namelist->append(QString::fromLocal8Bit("单错次数"));	
-	namelist->append(QString::fromLocal8Bit("发生错误的IO或RAM或ROM地址"));	
-	namelist->append(QString::fromLocal8Bit("陷阱（Trap)类型"));	
-	namelist->append(QString::fromLocal8Bit("切机标志"));	
-	namelist->append(QString::fromLocal8Bit("加电标志"));	
-	namelist->append(QString::fromLocal8Bit("SRAM单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("PROM单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("SRAM双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("PROM双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("ROM状态标志"));	
-	namelist->append(QString::fromLocal8Bit("RAM状态标志"));	
-	namelist->append(QString::fromLocal8Bit("EEPROM状态标志"));	
-	namelist->append(QString::fromLocal8Bit("发生错误的地址区域"));	
-	namelist->append(QString::fromLocal8Bit("EEPROM错误地址"));	
-	namelist->append(QString::fromLocal8Bit("EEPROM双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("EEPROM单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("EEPROM错误次数"));	
-	namelist->append(QString::fromLocal8Bit("MRAM双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("MRAM单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("MRAM错误计数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH错误计数"));	
-	namelist->append(QString::fromLocal8Bit("同步故障类型"));	
-	ui.comboBox->addItems(*namelist);
-	for (int i=0;i<namelist->count();i++)
+	QSqlQuery query(*sql.db);
+	query.exec("select*from DICTIONARY order by ID");
+	QStringList list;
+	bool Isexist;
+	while(query.next())
 	{
-		vtpara.push_back(namelist->at(i));
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+			list.append(query.value(1).toString());
+			vtpara.push_back(query.value(1).toString());
+		Isexist=false;
 	}
+	ui.comboBox->addItems(list);
+	//for (int i=0;i<namelist->count();i++)
+	//{
+	//	vtpara.push_back(namelist->at(i));
+	//}
 }
 QStringList CSVListdictionary; 
 void DictionaryManagement::on_openButton_clicked()

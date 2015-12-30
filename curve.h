@@ -46,6 +46,7 @@ public:
 	QDateTime enddatetime;
 	QListView *namelistview; 
 	QStringListModel *model; 
+	QString strzone;
 public slots:
 	void refresh();
 private:

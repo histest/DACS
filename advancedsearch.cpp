@@ -24,7 +24,7 @@ void Advancedsearch::initUI()
 {
 	vtSat.clear();
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
 	while(query.next())
 	{
@@ -33,6 +33,7 @@ void Advancedsearch::initUI()
 
 	}
 	this->ui.comboBox->addItems(list);
+
 }
 void Advancedsearch::on_addButton_clicked()
 {
@@ -73,92 +74,103 @@ void Advancedsearch::on_addButton_clicked()
 	{
 		this->setFixedHeight(this->height()+50);
 		QRect rect(240,30,290,60*icount);
-		ui.verticalLayout->setGeometry(rect);
+	//	ui.verticalLayout->setGeometry(rect);
 	}
 }
 void Advancedsearch::on_okButton_clicked()
 {
 	int icount = lineedits.count();
 	QString strsql;
-
+	strsql ="select ID ,DATETIME ,SATELLITENO";
 	QString strSat =ui.comboBox->currentText();
-	//QString startDate=ui.dateTimeEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
-	//QString endDate=ui.dateTimeEdit_2->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
 
 	QString startDate=ui.startdateEdit->text();//ui.dateTimeEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
 	QString endDate=ui.enddateEdit->text();//ui.dateTimeEdit_2->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
 
+	int fieldcount = ui.selectlistWidget_2->count();
+	if(fieldcount==0)
+	{
+		QMessageBox::information(this,QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("请选择要显示的字段"));
+		return;
+	}
+	else if(fieldcount == 1)
+	{
+		strsql+=" ,";
+		strsql+=QString("%1").arg(ui.selectlistWidget_2->item(0)->text());
+	}
+	else
+	{
+		strsql+=" ,";
+		for (int i=0;i<fieldcount;i++)
+		{
+			strsql+=QString("%1").arg(ui.selectlistWidget_2->item(i)->text());
+			if(i!=fieldcount-1)
+				strsql+=" ,";
+		}
+	}
+	if (dataFlag==1)
+	{
+		strsql+=" from SATELLITE where";
+	}
+	else
+	{
+		strsql+=" from SOURCEDATA where";
+	}
+	
+
+	if (ui.multiSatcheckBox->checkState()==Qt::Checked)
+	{
+		if (multisatlist.count()==1)
+		{
+			strsql +=multisatlist.at(0);
+		}
+		else
+		{
+			strsql +=" (  ";
+			for (int i=0;i<multisatlist.count();i++)
+			{
+				strsql +=multisatlist.at(i);
+				if(i!=multisatlist.count()-1) strsql +=" or ";
+			}
+			strsql +=" )  ";
+		}
+		//int satcount = satlist.count();
+		//if (satcount>1)
+		//{
+
+		//	for (int i = 0;i<satcount;i++)
+		//	{
+		//		strsql += "SATELLITENO = '"+satlist.at(i)+"'";
+		//		if(i!=satlist.count()-1)
+		//		{
+		//			strsql +="  or  ";
+		//		}
+
+		//	}
+
+		//}
+		//else
+		//{
+		//	strsql += " SATELLITENO = '"+satlist.at(0)+"'";
+
+
+		//}
+		//strsql +="  )  ";
+	}
 
 	if (ui.multiSatcheckBox->checkState()!=Qt::Checked)
 	{
-		satlist.clear();
-		satlist.append(ui.comboBox->currentText());
-	}
-	//for (int i = 0;i<satlist.count();i++)
-	//{
-	//	strSat = satlist.at(i);
-	//	if (sql.dboracle==true)
-	//	{
-	//		strsql = "where SATELLITENO = '"+strSat+"' and DATETIME between TIMESTAMP '"+startDate+"' and TIMESTAMP '"+endDate+"'";
-	//	}
-	//	else
-	//	{
-	//		strsql = "where SATELLITENO = '"+strSat+"' and DATETIME between #"+startDate+"# and #"+endDate+"#";//and
-	//	}
-	//
-	//	if (lineedits.at(0)->text()!=NULL)
-	//	{
-	//		strsql+=" and ";
-	//		strsql+=namecomboxs.at(0)->currentText()+getsift(siftcomboxs.at(0)->currentText())+lineedits.at(0)->text();
-	//	}
-	//	for (int i=1;i<icount;i++)
-	//	{
-
-	//		if (lineedits.at(i)->text()!=NULL)
-	//		{
-	//			if (andradiosbuttons.at(i-1)->isChecked())
-	//			{
-	//				strsql+=" and ";
-	//			}
-	//			if (orradiosbuttons.at(i-1)->isChecked())
-	//			{
-	//				strsql+=" or ";
-	//			}
-	//			strsql+=namecomboxs.at(i)->currentText()+" "+getsift(siftcomboxs.at(i)->currentText())+lineedits.at(i)->text();
-	//		}
-	//	}
-	//	if (strsql!="")
-	//	{
-	//		strsql +="order by ID";
-	//		sqllist.append(strsql);
-	//	}
-	//}
-	strsql="where";
-	int satcount = satlist.count();
-	if (satcount>1)
-	{
-		for (int i = 0;i<satcount;i++)
+		strsql += " SATELLITENO = '"+ui.comboBox->currentText()+"'";
+		if (sql.dboracle==true)
 		{
-			strsql += " SATELLITENO = '"+satlist.at(i)+"'";
-			if(i!=satlist.count()-1)
-			{
-				strsql +="  or  ";
-			}
+			strsql += " and DATETIME between TIMESTAMP '"+startDate+"' and TIMESTAMP '"+endDate+"'";
+		}
+		else
+		{
+			strsql += " and DATETIME between #"+startDate+"# and #"+endDate+"#";
 		}
 	}
-	else
-	{
-		strsql += " SATELLITENO = '"+satlist.at(0)+"'";
-	}
 
-	if (sql.dboracle==true)
-	{
-		strsql += " and DATETIME between TIMESTAMP '"+startDate+"' and TIMESTAMP '"+endDate+"'";
-	}
-	else
-	{
-		strsql += " and DATETIME between #"+startDate+"# and #"+endDate+"#";
-	}
 	if (lineedits.at(0)->text()!=NULL)
 	{
 		strsql+=" and ";
@@ -208,9 +220,9 @@ void Advancedsearch::on_cancelButton_clicked()
 {
 	this->close();
 }
-void Advancedsearch::setFlag(int iFlag)
+void Advancedsearch::setFlag(int Flag)
 {
-
+	dataFlag =Flag;
 	QHBoxLayout *hlayout = new QHBoxLayout;
 	QComboBox*namecombox= new QComboBox;
 	QComboBox*siftcombox= new QComboBox;
@@ -230,16 +242,16 @@ void Advancedsearch::setFlag(int iFlag)
 	namelist->append(QString::fromLocal8Bit("累计复位次数"));
 	namelist->append(QString::fromLocal8Bit("连续复位次数"));
 	namelist->append(QString::fromLocal8Bit("复位原因"));	
-	if (iFlag==1)
+	if (Flag==1)
 	{
 		namelist->append(QString::fromLocal8Bit("单错次数"));	
 	}
-	if (iFlag==2)
+	if (Flag==2)
 	{
 		namelist->append(QString::fromLocal8Bit("单错累计次数"));	
 	}
 	namelist->append(QString::fromLocal8Bit("发生错误的IO或RAM或ROM地址"));	
-	namelist->append(QString::fromLocal8Bit("陷阱（Trap)类型"));	
+	namelist->append(QString::fromLocal8Bit("陷阱类型"));	
 	namelist->append(QString::fromLocal8Bit("切机标志"));	
 	namelist->append(QString::fromLocal8Bit("加电标志"));	
 	namelist->append(QString::fromLocal8Bit("SRAM单错累计次数"));	
@@ -258,9 +270,9 @@ void Advancedsearch::setFlag(int iFlag)
 	namelist->append(QString::fromLocal8Bit("MRAM双错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM单错累计次数"));	
 	namelist->append(QString::fromLocal8Bit("MRAM错误计数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH双错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH单错累计次数"));	
-	namelist->append(QString::fromLocal8Bit("NOR FLASH错误计数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH双错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH单错累计次数"));	
+	namelist->append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	namelist->append(QString::fromLocal8Bit("同步故障类型"));	
 	namecombox->addItems(*namelist);
 	siftcombox->addItems(*siftlist);
@@ -277,56 +289,29 @@ void Advancedsearch::setFlag(int iFlag)
 	icount =0;
 	verticalSpacer = new QSpacerItem(20, 180, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	ui.verticalLayout->addItem(verticalSpacer);
+
+	ui.listWidget_2->addItems(*namelist);
 	this->show();
 }
 void Advancedsearch::multiSatcheck()
 {
-	satlist.clear();
 	if (ui.multiSatcheckBox->checkState()==Qt::Checked)
 	{
 		ui.comboBox->setEnabled(false);
+		ui.groupBox_2->setEnabled(false);
 		MultiSatDlg multisatdlg;
 		if(multisatdlg.exec()==QDialog::Accepted)
 		{
-			int satellitecount = multisatdlg.satellitecount;			
-			for (int i=0;i<satellitecount;i++)
+			for (int i=0;i<multisatdlg.sqllist.count();i++)
 			{
-				QString strSat=multisatdlg.satellites[i];			
-				satlist.append(strSat);
-				QSqlQuery query(*sql.db);
-				query.exec("select*from PARAMETER where SATELLITENO = '"+strSat+"'order by ID");
-				QStringList list;
-				while(query.next())
-				{
-
-					QString str = str.fromLocal8Bit("-卫星编号：");
-					QString strID = QString::number(i+1);
-					str = strID+str;
-					list.append(str+query.value(1).toString());	
-					str = str.fromLocal8Bit("芯片名称：");
-					list.append(str+query.value(3).toString());
-					str = str.fromLocal8Bit("规格：");
-					list.append(str+query.value(4).toString());
-					str = str.fromLocal8Bit("封装：");
-					list.append(str+query.value(5).toString());
-					str = str.fromLocal8Bit("额定电压：");
-					list.append(str+query.value(6).toString());
-					str = str.fromLocal8Bit("额定电流：");
-					list.append(str+query.value(7).toString());
-					str = str.fromLocal8Bit("抗辐射指标：");
-					list.append(str+query.value(8).toString());
-				}
-				/*this->ui.listWidget->addItems(list);*/
+				multisatlist.append(multisatdlg.sqllist.at(i));
 			}
-
 		};
-
 	}
 	else
 	{
-		//		ui.tableView->setVisible(true);
 		ui.comboBox->setEnabled(true);
-		/*onChanged();*/
+		ui.groupBox_2->setEnabled(true);
 	}
 }
 void Advancedsearch::setCompleter(const QString &text) {
@@ -344,7 +329,7 @@ void Advancedsearch::setCompleter(const QString &text) {
 	QSqlQuery query(*sql.db);	
 
 	
-	QString strsql= "select * from PARAMETER where SATELLITENO like '"+text+"'";
+	QString strsql= "select * from SATELLITE_PUBLIC where SATELLITENO like '"+text+"'";
 	query.exec(strsql);
 	if (query.next())return;
 
@@ -375,9 +360,9 @@ void Advancedsearch::setCompleter(const QString &text) {
 	int y = this->mapToGlobal(p).y() + 1;
 
 	//listView->move(x, y);
-	namelistview->setGeometry(this->x()+60, this->y()+100, 50, 100);
+	namelistview->setGeometry(this->x()+72, this->y()+82, 50, 100);
 	namelistview->resize(100,200);
-	namelistview->setFixedWidth(123);
+	namelistview->setFixedWidth(ui.comboBox->width());
 	namelistview->show();
 //	connect(ui.comboBox,SIGNAL(editTextChanged (const QString & )),this,SLOT(setCompleter(const QString & )));  
 }
@@ -451,6 +436,28 @@ void Advancedsearch::keyPressEvent(QKeyEvent *e) {
 		}
 	} else {
 		//QLineEdit::keyPressEvent(e);
+	}
+}
+void Advancedsearch::on_addButton_2_clicked()
+{
+	int currentcount=ui.selectlistWidget_2->count();
+	QList<QListWidgetItem*> list=ui.listWidget_2->selectedItems();
+	for (int i=0;i<list.count();i++)
+	{
+		for (int j=0;j<currentcount;j++)
+		{
+			if (ui.selectlistWidget_2->item(j)->text()==list[i]->text())
+				continue;
+		}
+		ui.selectlistWidget_2->addItem(list[i]->text());
+	}
+}
+void Advancedsearch::on_delButton_2_clicked()
+{
+	QList<QListWidgetItem*> list= ui.selectlistWidget_2->selectedItems();
+	for (int i=0;i<list.count();i++)
+	{
+		ui.selectlistWidget_2->takeItem(list[i]->data(0).toInt());
 	}
 }
 Advancedsearch::~Advancedsearch()

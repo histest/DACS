@@ -106,7 +106,7 @@ public:
 		  QString qstr = QObject::tr("中国");
 		  string str = code->fromUnicode(qstr).data();
 		  osgText::Text* text = new osgText::Text;
-		  _updateText->setFont("C:/WINDOWS/Fonts/STSONG.ttf");//设置中文字体
+		  _updateText->setFont("Stsong.ttf");//设置中文字体C:/WINDOWS/Fonts/STSONG.ttf
 		  _updateText->setText(name, osgText::String::ENCODING_UTF8);
 			// createContent(*_updateText,wText);// _updateText->setText(wText);//
 	  }
@@ -199,19 +199,30 @@ void CPickHandler::Pick(osgViewer::View* view,float MouseX, float MouseY)
 	//material->setShininess(osg::Material::FRONT_AND_BACK,6.0);
 
 	view->computeIntersections(MouseX,MouseY,intersections);
+//	 this->tubeWellNode=NULL;
 	if (intersections.size()>0)
 	{
 		osgUtil::LineSegmentIntersector::Intersections::iterator itr = intersections.begin();
-
+		if (itr->nodePath.empty())
+			return;
 		//if(count==0)
 		//	this->tubeWellNode=NULL;==this->tubeWellNode
 		this->lastTubeWellNode= this->tubeWellNode;
-		if (this->lastTubeWellNode&&this->pickcount>0)
+		if (this->lastTubeWellNode&&this->pickcount>0)//
 		{
+			if(this->lastTubeWellNode==NULL) return;
+			
 			this->lastTubeWellNode->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::MATERIAL);
 		}
 		//得到管井Node节点
+
+		if(itr->nodePath.size()<1) return;
 		this->tubeWellNode = (itr->nodePath)[itr->nodePath.size()-1];
+		if(this->tubeWellNode->getName().compare("Earth") == 0) 
+		{
+			//this->tubeWellNode=NULL;
+			return;
+		}
 		if (this->tubeWellNode)
 		{
 			this->tubeWellNode->getOrCreateStateSet()->setAttributeAndModes(material,osg::StateAttribute::ON);

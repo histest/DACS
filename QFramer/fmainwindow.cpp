@@ -255,6 +255,7 @@ void FMainWindow::animationClose()
     animation->setStartValue(1);
     animation->setEndValue(0);
     animation->start();
+	emit CloseAll();
 }
 
 void FMainWindow::onSystemTrayIconClicked(QSystemTrayIcon::ActivationReason reason)

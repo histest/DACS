@@ -1,8 +1,9 @@
 #ifndef PRODUCTMANAGEMENT_H
 #define PRODUCTMANAGEMENT_H
-
+#include <QtGui>
 #include <QWidget>
 #include "ui_productmanagement.h"
+#include "advancedsearch.h"
 #include<QFileDialog>
 class ProductManagement : public QWidget
 {
@@ -12,8 +13,11 @@ public:
 	ProductManagement(QWidget *parent = 0);
 	~ProductManagement();
 	void DisableInput();
+	QListView *namelistview; 
+	QStringListModel *model; 
+	Advancedsearch*search;
 public slots:
-	void initUI(QString);
+	void initUI();
 	void refresh();
 private:
 	Ui::ProductManagement ui;
@@ -28,6 +32,8 @@ private:
 		void on_refreshButton_clicked();
 		void on_advancedsearchButton_clicked();
 		void advancedpreview(QString);
+		void setCompleter(const QString &text); 
+		void completeText(const QModelIndex &index);
 		
 };
 

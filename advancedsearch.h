@@ -30,10 +30,10 @@ public:
 	 QSpacerItem *verticalSpacer;
 	QStringList*siftlist;
 	QStringList*namelist;
-	QStringList satlist;
+	QStringList multisatlist;
 	QStringList sqllist;
 	 int icount;
-	 int iFlag;
+	 int dataFlag;
 	 void setFlag(int);
 	 QListView *namelistview; 
 	 QStringListModel *model; 
@@ -54,6 +54,8 @@ private:
 		void completeText(const QModelIndex &index);
 		void on_startdateButton_clicked();
 		void on_enddateButton_clicked();
+		void on_addButton_2_clicked();
+		void on_delButton_2_clicked();
 };
 
 #endif // ADVANCEDSEARCH_H

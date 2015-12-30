@@ -21,6 +21,8 @@ private:
 	
 	private slots:
 		void on_openButton_clicked();
+		void on_radioButton_clicked();
+		void on_radioButton_2_clicked();
 		void on_inputButton_clicked();
 		void on_outButton_clicked();
 		void on_queryButton_clicked();

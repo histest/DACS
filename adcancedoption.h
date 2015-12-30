@@ -43,6 +43,7 @@ public:
 	QDateTime startdatetime;
 	QDateTime enddatetime;
 	datedlg* dateDlg; 
+	QString strzone;
 	int leap(int year);
 	int count_day (int year, int month, int day, int flag);
 	int delta_day(int startYear,int startMonth,int startDay,int endYear,int endMonth,int endDay);

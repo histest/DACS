@@ -24,6 +24,7 @@ private:
 	QSqlTableModel *dictionarymodel;
 	private slots:
 		void on_deleteButton_clicked();
+		void on_deleteallButton_clicked();
 		void on_deleteButton_2_clicked();
 		void on_previewButton_2_clicked();
 		void on_previewButton_3_clicked();
@@ -31,7 +32,8 @@ private:
 		void on_enddateButton_clicked();
 		void on_saveButton_clicked();
 		void on_saveButton_2_clicked();
-
+		void on_radioButton_clicked();
+		void on_radioButton_2_clicked();
 		void on_previewButton_4_clicked();
 		void on_deleteButton_3_clicked();
 		void on_saveButton_3_clicked();

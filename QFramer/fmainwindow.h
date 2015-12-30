@@ -59,6 +59,7 @@ public:
 
 signals:
     void Hidden();
+	void CloseAll();
 public slots:
     void swithMaxNormal();
     void onSystemTrayIconClicked(QSystemTrayIcon::ActivationReason reason);

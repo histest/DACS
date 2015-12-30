@@ -5,12 +5,15 @@
 #include <QDate>
 #include <QTimer>
 #include "mydefine.h"
-#include "advancedsearch.h"
+#include "selectchip.h"
 #include "componentmanagement.h"
 #include "progressbar.h"
+#include <vector>  
 extern bool Isfresh;
 extern ConnectSql sql;
-Advancedsearch*search;
+
+using namespace std;
+vector <QString> vSat; 
 ProductManagement::ProductManagement(QWidget *parent)
 	: QWidget(parent)
 {
@@ -23,22 +26,37 @@ ProductManagement::ProductManagement(QWidget *parent)
 		"color: white;padding-left: 4px;border: 1px solid #6c6c6c;}"
 		"QHeaderView::section:checked{background-color: white;color: black;}");
 	ui.tableView_2->setStyleSheet("border: 1px solid gray;color: rgb(34, 125, 155);	background-color: transparent;selection-color: black;selection-background-color:rgb(34, 125, 155);");
-	QString str;
-	initUI(str);
+	initUI();
 	ComponentManagement*componentmanagement = new ComponentManagement;
-	connect(componentmanagement,SIGNAL(refresh(QString)), this, SLOT(initUI(QString)));
-	
+	//connect(componentmanagement,SIGNAL(refresh(QString)), this, SLOT(initUI(QString)));
+
+	namelistview = new QListView(this);
+	model = new QStringListModel(this);
+	namelistview->setWindowFlags(Qt::ToolTip);
+	installEventFilter(namelistview);
+	connect(namelistview, SIGNAL(clicked(const QModelIndex &)), this, SLOT(completeText(const QModelIndex &)));
+	connect(ui.comboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(setCompleter(const QString &)));
 }
-void ProductManagement::initUI(QString str)
+void ProductManagement::initUI()
 {
 	this->ui.comboBox->clear();
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
+	bool Isexist;
 	while(query.next())
 	{
-		list.append(query.value(1).toString());
-
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			list.append(query.value(1).toString());
+			vSat.push_back(query.value(1).toString());
+		}
+		Isexist=false;
 	}
 	this->ui.comboBox->addItems(list);
 
@@ -51,7 +69,7 @@ void ProductManagement::refresh()
 {
 	this->ui.comboBox->clear();
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER order by ID");
+	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
 	while(query.next())
 	{
@@ -110,7 +128,7 @@ void ProductManagement::on_openButton_clicked()
 	header.append(QString::fromLocal8Bit("复位原因"));	
 	header.append(QString::fromLocal8Bit("单错累计次数"));	
 	header.append(QString::fromLocal8Bit("发生错误的IO或RAM或ROM地址"));	
-	header.append(QString::fromLocal8Bit("陷阱（Trap)类型"));	
+	header.append(QString::fromLocal8Bit("陷阱类型"));	
 	header.append(QString::fromLocal8Bit("切机标志"));	
 	header.append(QString::fromLocal8Bit("加电标志"));	
 	header.append(QString::fromLocal8Bit("SRAM单错累计次数"));	
@@ -129,9 +147,9 @@ void ProductManagement::on_openButton_clicked()
 	header.append(QString::fromLocal8Bit("MRAM双错累计次数"));	
 	header.append(QString::fromLocal8Bit("MRAM单错累计次数"));	
 	header.append(QString::fromLocal8Bit("MRAM错误计数"));	
-	header.append(QString::fromLocal8Bit("NOR FLASH双错累计次数"));	
-	header.append(QString::fromLocal8Bit("NOR FLASH单错累计次数"));	
-	header.append(QString::fromLocal8Bit("NOR FLASH错误计数"));	
+	header.append(QString::fromLocal8Bit("NOR_FLASH双错累计次数"));	
+	header.append(QString::fromLocal8Bit("NOR_FLASH单错累计次数"));	
+	header.append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	header.append(QString::fromLocal8Bit("同步故障类型"));	
 
 	ui.tableWidget->setRowCount(CSVList.size()-1);
@@ -254,7 +272,6 @@ void ProductManagement::on_inputButton_clicked()
 		i++;
 		progress->ui.progressBar->setValue(i); 
 	}
-	//progress->close();
 	progress->ui.progressBar->setValue(0); 
 	progress->ui.label_2->setText(QString::fromLocal8Bit("正在导入"));
 	QSqlQuery querysat(*sql.db);
@@ -420,12 +437,35 @@ void ProductManagement::on_inputButton_clicked()
 		row++;
 	}
 	progress->close();
+
+	SelectChip*chip = new SelectChip;
+	if(chip->exec()==QDialog::Accepted)
+	{
+		querysat.exec("select*from SATELLITE_PUBLIC");
+		int satcount =0;
+		while(querysat.next())
+		{
+			if (querysat.value(1).toString()==satelliteNo)
+			{
+				return;
+			}
+			satcount++;
+		}
+		for (int i=0;i<chip->chiplist.count();i++)
+		{
+			querysat.prepare("INSERT INTO SATELLITE_PUBLIC VALUES (?, ?, ?, ?)");
+			querysat.bindValue(0,satcount);
+			querysat.bindValue(1,satelliteNo);
+			querysat.bindValue(2,500);
+			querysat.bindValue(3,chip->chiplist.at(i));
+			querysat.exec();
+			satcount++;
+		}
+	}
 	QString str = str.fromLocal8Bit("提示");
 	QString str2 = str.fromLocal8Bit("导入成功！");
 	QMessageBox::information(this,str,str2);
-	
-
-	//query.exec("DELETE *FROM Satellite");删除
+	initUI();
 }
 void ProductManagement::on_previewButton_clicked()
 {
@@ -546,20 +586,84 @@ void ProductManagement::advancedpreview(QString strsql)
 	QSqlQueryModel *model=new QSqlQueryModel();
 	QString strSat =ui.comboBox->currentText();
 
-	strsql = "select * from SATELLITE "+strsql;
+	//strsql = "select * from SATELLITE "+strsql;
 	model->setQuery(strsql,*sql.db);
-	model->setHeaderData(0,Qt::Horizontal,tr("ID"));
-	model->setHeaderData(1,Qt::Horizontal,QString::fromLocal8Bit("时间"));
-	model->setHeaderData(2,Qt::Horizontal,QString::fromLocal8Bit("卫星编号"));
-	model->setHeaderData(3,Qt::Horizontal,QString::fromLocal8Bit("经度"));
-	model->setHeaderData(4,Qt::Horizontal,QString::fromLocal8Bit("纬度"));
-	/*	model->setHeaderData(5,Qt::Horizontal,tr("Height"));*/
-	model->setHeaderData(5,Qt::Horizontal,tr("Sun_x"));
-	model->setHeaderData(6,Qt::Horizontal,tr("Sun_y"));
-	model->setHeaderData(7,Qt::Horizontal,tr("Sun_z"));
-	model->setHeaderData(8,Qt::Horizontal,tr("Sun_s"));
+	//model->setHeaderData(0,Qt::Horizontal,tr("ID"));
+	//model->setHeaderData(1,Qt::Horizontal,QString::fromLocal8Bit("时间"));
+	//model->setHeaderData(2,Qt::Horizontal,QString::fromLocal8Bit("卫星编号"));
+	//model->setHeaderData(3,Qt::Horizontal,QString::fromLocal8Bit("经度"));
+	//model->setHeaderData(4,Qt::Horizontal,QString::fromLocal8Bit("纬度"));
+	///*	model->setHeaderData(5,Qt::Horizontal,tr("Height"));*/
+	//model->setHeaderData(5,Qt::Horizontal,tr("Sun_x"));
+	//model->setHeaderData(6,Qt::Horizontal,tr("Sun_y"));
+	//model->setHeaderData(7,Qt::Horizontal,tr("Sun_z"));
+	//model->setHeaderData(8,Qt::Horizontal,tr("Sun_s"));
 	ui.tableView_2->setModel(model);
 
+}
+void ProductManagement::setCompleter(const QString &text) {
+	namelistview->hide();
+	//disconnect(ui.comboBox,SIGNAL(editTextChanged (const QString & )),this,SLOT(setCompleter(const QString & )));  
+	if (text.isEmpty()) {
+		namelistview->hide();
+		return;
+	}
+
+	if ((text.length() > 1) && (!namelistview->isHidden())) {
+		return;
+	}
+
+	QSqlQuery query(*sql.db);	
+
+
+	QString strsql= "select * from SATELLITE_PUBLIC where SATELLITENO like '"+text+"'";
+	query.exec(strsql);
+	if (query.next())return;
+
+	QStringList list;
+	for(int i = 0;i < vSat.size();++i){
+
+		if (vSat[i].indexOf(text) != -1)
+		{
+
+			list.append(vSat[i]);
+		}
+	}
+
+	model->setStringList(list);
+	//	model->setStringList(sl);
+	namelistview->setModel(model);
+
+	if (model->rowCount() == 0) {
+		return;
+	}
+
+	// Position the text edit
+	namelistview->setMinimumWidth(this->width());
+	namelistview->setMaximumWidth(this->width());
+
+	QPoint p(0, this->height());
+	int x = this->mapToGlobal(p).x();
+	int y = this->mapToGlobal(p).y() + 1;
+
+	//listView->move(x, y);
+	namelistview->setGeometry(this->x()+215, this->y()+200, 50, 100);
+	//namelistview->resize(100,200);
+	namelistview->setFixedWidth(ui.comboBox->width());
+	namelistview->show();
+	//	connect(ui.comboBox,SIGNAL(editTextChanged (const QString & )),this,SLOT(setCompleter(const QString & )));  
+}
+void ProductManagement::completeText(const QModelIndex &index) {
+	QString strName = index.data().toString();
+	for (int i =0;i<ui.comboBox->count();i++)
+	{
+		if (ui.comboBox->itemText(i)==strName)
+		{
+			ui.comboBox->setCurrentIndex(i);
+		}
+	}
+	//ui.comboBox->setEditText(strName);
+	namelistview->hide();
 }
 ProductManagement::~ProductManagement()
 {

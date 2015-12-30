@@ -20,28 +20,20 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QApplication::setApplicationName("DCAS");
     QApplication::setWindowIcon(QIcon(":/images/skin/images/QFramer.ico"));
-	//QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
+	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
 	QApplication::addLibraryPath("./plugins");
 	ConnectDB connectdatase;
-	//QSplashScreen *splash = new QSplashScreen;  
-	//splash->setPixmap(QPixmap(":/images/skin/images/bear.jpg"));  
-	//splash->show();  
-	//Qt::Alignment bottteomRight = Qt::AlignRight | Qt::AlignBottom;  
-	//splash->showMessage(QString::fromLocal8Bit("³ÌÐòÆô¶¯ÖÐ..."),  
-	//	bottteomRight,  
-	//	QColor (153,217,234));  
-	//SleeperThread::msleep(3000);
- //
-	//splash->finish(&connectdatase);  
-	//delete splash;  
 
 	 int currentExitCode = 0;
+
+	 app.connect( &app,SIGNAL(lastWindowClosed()),&app,SLOT(quit()));
 	if(connectdatase.exec()==QDialog::Accepted)//
 	{		
 		do{
 			MainWindow *main = MainWindow::getInstance();
+			main->connect(main,SIGNAL(CloseAll()),&app,SLOT(exit()));
 			main->initData(connectdatase.IsAdmin,connectdatase.IsAuthorized);
-			main->setAttribute(Qt::WA_DeleteOnClose);			
+			main->setAttribute(Qt::WA_DeleteOnClose,true);			
 			main->show();
 			setSkinForApp(QString(":/qss/skin/qss/GB.qss"));
 			currentExitCode = app.exec();
@@ -49,6 +41,6 @@ int main(int argc, char *argv[])
 		}while( currentExitCode == EXIT_CODE_REBOOT );
 
 	}
-	
+
     return 0;
 }

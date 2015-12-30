@@ -49,17 +49,17 @@ void SourceDataManagement::on_advancedButton_clicked()
 void SourceDataManagement::advancedpreview(QString strsql)
 {
 	QSqlQueryModel *model=new QSqlQueryModel();
-	strsql = "select * from SOURCEDATA "+strsql;
+	/*strsql = "select * from SOURCEDATA "+strsql;*/
 	model->setQuery(strsql,*sql.db);
-	model->setHeaderData(0,Qt::Horizontal,tr("ID"));
-	model->setHeaderData(1,Qt::Horizontal,QString::fromLocal8Bit("时间"));
-	model->setHeaderData(2,Qt::Horizontal,QString::fromLocal8Bit("卫星编号"));
-	model->setHeaderData(3,Qt::Horizontal,QString::fromLocal8Bit("经度"));
-	model->setHeaderData(4,Qt::Horizontal,QString::fromLocal8Bit("纬度"));
-	model->setHeaderData(5,Qt::Horizontal,tr("Sun_x"));
-	model->setHeaderData(6,Qt::Horizontal,tr("Sun_y"));
-	model->setHeaderData(7,Qt::Horizontal,tr("Sun_z"));
-	model->setHeaderData(8,Qt::Horizontal,tr("Sun_s"));
+	//model->setHeaderData(0,Qt::Horizontal,tr("ID"));
+	//model->setHeaderData(1,Qt::Horizontal,QString::fromLocal8Bit("时间"));
+	//model->setHeaderData(2,Qt::Horizontal,QString::fromLocal8Bit("卫星编号"));
+	//model->setHeaderData(3,Qt::Horizontal,QString::fromLocal8Bit("经度"));
+	//model->setHeaderData(4,Qt::Horizontal,QString::fromLocal8Bit("纬度"));
+	//model->setHeaderData(5,Qt::Horizontal,tr("Sun_x"));
+	//model->setHeaderData(6,Qt::Horizontal,tr("Sun_y"));
+	//model->setHeaderData(7,Qt::Horizontal,tr("Sun_z"));
+	//model->setHeaderData(8,Qt::Horizontal,tr("Sun_s"));
 	ui.tableView->setModel(model);
 }
 SourceDataManagement::~SourceDataManagement()
