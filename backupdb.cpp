@@ -14,27 +14,30 @@ Backupdb::Backupdb(QWidget *parent)
 	QStringList list,list2;
 	QString lastChip;
 	vectorSat.clear();
-	while(query.next())
-	{
-		list.append(query.value(1).toString());
-		vectorSat.push_back(query.value(1).toString());
-	}
-	this->ui.comboBox->addItems(list);
-
-	ui.comboBox_2->clear();
-	list.clear();
-	query.exec("select*from PARAMETER order by ID");
-	bool Isexist;
+	bool Isexist=false;
 	while(query.next())
 	{
 		for (int i=0;i<list.count();i++)
 		{
-			if (query.value(3).toString()==list.at(i))
+			if (query.value(1).toString()==list.at(i))
 				Isexist=true;
 		}
 		if(!Isexist)
-			list.append(query.value(3).toString());
+		{
+			list.append(query.value(1).toString());
+			vectorSat.push_back(query.value(1).toString());
+		}
 		Isexist=false;
+	}
+	ui.comboBox->addItems(list);
+
+	ui.comboBox_2->clear();
+	list.clear();
+	query.exec("select*from PARAMETER order by ID");
+
+	while(query.next())
+	{
+		list.append(query.value(1).toString());
 	}
 	ui.comboBox_2->addItems(list);
 
@@ -99,6 +102,14 @@ Backupdb::Backupdb(QWidget *parent)
 		Isexist=false;
 	}
 	ui.comboBox_3->addItems(list);
+
+	QDateTime now = QDateTime::currentDateTime();
+	QString endtime = now.toString("yyyy-MM-dd hh:mm:ss");  
+	ui.dateTimeEdit_2->setDateTime(now);
+
+	QDateTime start = now.addYears(-1);
+	QString starttime = start.toString("yyyy-MM-dd hh:mm:ss");  
+	ui.dateTimeEdit->setDateTime(start);
 }
 void Backupdb::on_backupButton_clicked()
 {
@@ -121,7 +132,13 @@ void Backupdb::on_backupButton_clicked()
 }
 void Backupdb::on_openButton_clicked()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Access file"), qApp->applicationDirPath (),
+	//QString fileName = QFileDialog::getSaveFileName(this, tr("Access file"), qApp->applicationDirPath (),
+	//	tr("Access Files (*.accdb)"));
+	//if (fileName.isEmpty())
+	//	return;
+	//ui.lineEdit->setText(fileName);
+
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Access file"), qApp->applicationDirPath (),
 		tr("Access Files (*.accdb)"));
 	if (fileName.isEmpty())
 		return;
@@ -191,12 +208,7 @@ void Backupdb::oraclebackup()
 	QString strSat =ui.comboBox->currentText();
 
 
-	query.exec("delete*from SATELLITE_PUBLIC");
-	query.prepare("INSERT INTO SATELLITE_PUBLIC VALUES (?, ?, ?)");
-	query.bindValue(0,0);
-	query.bindValue(1,strSat);
-	query.bindValue(2,500);
-	query.exec();
+
 
 	QString startDate=ui.dateTimeEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
 	QString endDate=ui.dateTimeEdit_2->dateTime().toString("yyyy-MM-dd hh:mm:ss");  
@@ -256,6 +268,24 @@ void Backupdb::oraclebackup()
 			return;
 		}
 	}
+
+	query.exec("delete*from SATELLITE_PUBLIC");
+	querysat.exec("select * from SATELLITE_PUBLIC where SATELLITENO = '"+strSat+"' ");
+	while(querysat.next())
+	{
+		query.prepare("INSERT INTO SATELLITE_PUBLIC VALUES (?, ?, ?, ?)");
+		for (int i=0;i<4;i++)
+		{
+			query.bindValue(i, querysat.value(i));
+		}
+		if(!query.exec())
+		{
+			QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("备份失败！"), QMessageBox::Ok);
+			return;
+		}
+	}
+
+
 	QString strChipName = ui.comboBox_2->currentText();
 	strsql="select*from PARAMETER where CHIPNAME = '"+strChipName+"' order by ID";
 	if (ui.paracheckBox->isChecked())
@@ -265,8 +295,8 @@ void Backupdb::oraclebackup()
 	{
 
 		query.prepare("INSERT INTO PARAMETER "
-			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		for (int i=0;i<9;i++)
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		for (int i=0;i<10;i++)
 		{
 			query.bindValue(i, querysat.value(i));
 		}
@@ -451,7 +481,7 @@ void Backupdb::setCompleter(const QString &text) {
 	QSqlQuery query(*sql.db);	
 
 
-	QString strsql= "select * from PARAMETER where SATELLITENO like '"+text+"'";
+	QString strsql= "select * from SATELLITE_PUBLIC where SATELLITENO like '"+text+"'";
 	query.exec(strsql);
 	if (query.next())return;
 

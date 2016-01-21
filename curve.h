@@ -10,6 +10,7 @@
 #include <iostream>
 #include "adcancedoption.h"
 #include <QtGui>
+#include <QThread>
 class curve : public QWidget
 {
 	Q_OBJECT
@@ -47,6 +48,7 @@ public:
 	QListView *namelistview; 
 	QStringListModel *model; 
 	QString strzone;
+	QThread displayThread;
 public slots:
 	void refresh();
 private:

@@ -1,6 +1,8 @@
 #include "connectdb.h"
 #include "ui_connectdb.h"
 #include "connectsql.h"
+#include "QSettings"
+#include "QSysInfo"
 ConnectSql sql;
 ConnectDB::ConnectDB(QWidget *parent): 
 QDialog(parent),
@@ -48,7 +50,15 @@ void ConnectDB::initUI()
 	ui->plainTextEdit->setPlainText(sDbNm);
 
 	IsAdmin=false;
-	
+
+	QSettings setting("oracle.ini",QSettings::IniFormat);//读配置文件
+	setting.beginGroup("config");
+	ui->editHostname->setText(setting.value("server").toString());
+	ui->editUsername->setText(setting.value("username").toString());
+	ui->editPassword->setText(setting.value("password").toString());
+	ui->editPort->setText(setting.value("port").toString());
+	ui->editDatabase->setText(setting.value("databasename").toString());
+	setting.endGroup();
 }
 ConnectDB::~ConnectDB()
 {
@@ -78,6 +88,17 @@ void ConnectDB::on_okButton_clicked()
 		/*QString str = str.fromLocal8Bit("提示");
 		QString str2 = str.fromLocal8Bit("连接数据库成功！");
 		QMessageBox::information(this,str,str2);*/
+		if (sql.dboracle==true)
+		{
+			QSettings settings("oracle.ini", QSettings::IniFormat);
+			settings.beginGroup("config");
+			settings.setValue("databasename",ui->editDatabase->text().trimmed());			
+			settings.setValue("username", ui->editUsername->text().trimmed());
+			settings.setValue("password", ui->editPassword->text().trimmed());
+			settings.setValue("server", ui->editHostname->text().trimmed());
+			settings.setValue("port", ui->editPort->text().trimmed());		
+			settings.endGroup();
+		}
 
 
 

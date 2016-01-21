@@ -5,6 +5,8 @@
 #include "ui_productmanagement.h"
 #include "advancedsearch.h"
 #include<QFileDialog>
+#include <QThread>
+
 class ProductManagement : public QWidget
 {
 	Q_OBJECT
@@ -16,6 +18,8 @@ public:
 	QListView *namelistview; 
 	QStringListModel *model; 
 	Advancedsearch*search;
+	QThread visuaThread;
+	QThread inputThread;
 public slots:
 	void initUI();
 	void refresh();
@@ -34,7 +38,6 @@ private:
 		void advancedpreview(QString);
 		void setCompleter(const QString &text); 
 		void completeText(const QModelIndex &index);
-		
 };
 
 #endif // PRODUCTMANAGEMENT_H

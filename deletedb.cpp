@@ -26,25 +26,29 @@ void Deletedb::initUI()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from PARAMETER order by ID");
 	QStringList list,list2;
-	bool Isexist;
+	bool Isexist=false;
 	while(query.next())
 	{
-		for (int i=0;i<list.count();i++)
-		{
-			if (query.value(3).toString()==list.at(i))
-				Isexist=true;
-		}
-		if(!Isexist)
-			list.append(query.value(3).toString());
-		Isexist=false;
+		list.append(query.value(1).toString());
 	}
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList satlist;
 	while(query.next())
 	{
-		satlist.append(query.value(1).toString());
+		for (int i=0;i<satlist.count();i++)
+		{
+			if (query.value(1).toString()==satlist.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			satlist.append(query.value(1).toString());
+		}
+		Isexist=false;
+		
 	}
 	this->ui.comboBox->addItems(satlist);
+	//this->ui.comboBox_4->addItems(satlist);
 	this->ui.comboBox_2->addItems(list);
 
 	QStringList*namelist = new QStringList;
@@ -94,6 +98,7 @@ void Deletedb::initUI()
 	}
 	ui.comboBox_3->addItems(list);
 	ui.tableView_3->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+
 }
 void Deletedb::on_previewButton_2_clicked()
 {
@@ -114,16 +119,45 @@ void Deletedb::on_previewButton_2_clicked()
 void Deletedb::on_previewButton_3_clicked()
 {
 	QSqlQuery query(*sql.db);
+
 	QString strChipName = ui.comboBox_2->currentText();
+	//QString strSat = ui.comboBox_4->currentText();
 	paramodel = new QSqlTableModel(this,*sql.db);
-	paramodel->setTable("PARAMETER"); 
+
 	paramodel->setEditStrategy(QSqlTableModel::OnManualSubmit); 
+	paramodel->setTable("PARAMETER"); 
 	paramodel->setFilter(QObject::tr("CHIPNAME = '%1'").arg(strChipName)); //根据姓名进行筛选
+	//if (ui.radioButton->isChecked()==true)
+	//{
+	//	
+	//}
+	//else
+	//{
+	//	QString strsql;
+	//	QStringList chipList;
+	//	QSqlQuery query(*sql.db);
+	//	query.exec("select*from SATELLITE_PUBLIC where SATELLITENO = '"+strSat+"' order by ID");
+	//	while(query.next())
+	//	{
+	//		chipList.append(query.value(3).toString());
+	//	}
+	//	int count =chipList.count();
+	//	if(count==1)
+	//		strsql= " CHIPNAME = '"+chipList.at(0)+"'";
+	//	if (count>1)
+	//	{
+	//		for (int i=0;i<count;i++)
+	//		{
+	//			strsql +="CHIPNAME = '"+chipList.at(i)+"'";
+	//			//if(i!=count-1)
+	//			//	strsql +=" or ";
+	//		}
+	//	}
+	//	paramodel->setFilter(strsql); 
+	//}
 	paramodel->select(); //显示结果
 	// model->removeColumn(1); //不显示name属性列,如果这时添加记录，则该属性的值添加不上 
 	ui.tableView->setModel(paramodel); 
-//	ui.tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-
 }
 void Deletedb::on_deleteButton_clicked()
 {
@@ -155,16 +189,27 @@ void Deletedb::on_deleteallButton_clicked()
 	int ok = QMessageBox::warning(this,QString::fromLocal8Bit("全部删除!"),QString::fromLocal8Bit("你确定删除该卫星所有数据吗?"),QMessageBox::Yes,QMessageBox::No);
 	if(ok == QMessageBox::Yes)
 	{
-		if(query.exec("delete * from SATELLITE where SATELLITENO = '"+strsat+"'")&&query.exec("delete * from SATELLITE_PUBLIC where SATELLITENO = '"+strsat+"'")&&query.exec("delete * from SOURCEDATA where SATELLITENO = '"+strsat+"'"))
+		if(query.exec("delete  from SATELLITE where SATELLITENO = '"+strsat+"'")&&query.exec("delete  from SATELLITE_PUBLIC where SATELLITENO = '"+strsat+"'")&&query.exec("delete  from SOURCEDATA where SATELLITENO = '"+strsat+"'"))
 			QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("已删除！"), QMessageBox::Yes);
 		this->ui.comboBox->clear();
 		query.exec("select*from SATELLITE_PUBLIC order by ID");
-		QStringList satlist;
+		QStringList list;
+		bool Isexist=false;
 		while(query.next())
 		{
-			satlist.append(query.value(1).toString());
+			for (int i=0;i<list.count();i++)
+			{
+				if (query.value(1).toString()==list.at(i))
+					Isexist=true;
+			}
+			if(!Isexist)
+			{
+				list.append(query.value(1).toString());
+			}
+			Isexist=false;
 		}
-		this->ui.comboBox->addItems(satlist);
+		this->ui.comboBox->addItems(list);
+
 		QSqlTableModel* model = new QSqlTableModel(this,*sql.db);
 		ui.tableView_2->setModel(model);
 	}
@@ -325,18 +370,71 @@ void Deletedb::on_deleteButton_3_clicked()
 }
 void Deletedb::on_radioButton_clicked()
 {
-	if (ui.radioButton->isChecked())
-	{
-		ui.comboBox_4->setEnabled(false);
-		ui.comboBox_2->setEnabled(true);
-	}
+	//if (ui.radioButton->isChecked())
+	//{
+	//	ui.comboBox_4->setEnabled(false);
+	//	ui.comboBox_2->setEnabled(true);
+	//}
 }
 void Deletedb::on_radioButton_2_clicked()
 {
-	if (ui.radioButton_2->isChecked())
+	//if (ui.radioButton_2->isChecked())
+	//{
+	//	ui.comboBox_2->setEnabled(false);
+	//	ui.comboBox_4->setEnabled(true);
+	//}
+}
+void Deletedb::on_deleteAllButton_clicked()
+{
+	QSqlQuery query(*sql.db);
+	int ok = QMessageBox::warning(this,QString::fromLocal8Bit("全部删除!"),QString::fromLocal8Bit("你确定删除所有芯片数据吗?"),QMessageBox::Yes,QMessageBox::No);
+	if(ok == QMessageBox::Yes)
 	{
-		ui.comboBox_2->setEnabled(false);
-		ui.comboBox_4->setEnabled(true);
+		QString strsql;
+		if (sql.dboracle==true)
+		{
+			strsql ="delete  from PARAMETER "; 
+		}
+		else
+		{
+			strsql ="delete * from PARAMETER ";
+		}
+		if(query.exec(strsql))
+			QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("已删除！"), QMessageBox::Yes);
+		this->ui.comboBox_2->clear();
+		QSqlTableModel* model = new QSqlTableModel(this,*sql.db);
+		ui.tableView->setModel(model);
+	}
+	else
+	{
+		return;
+	}
+}
+void Deletedb::on_deleteallButton_2_clicked()
+{
+	QSqlQuery query(*sql.db);
+	int ok = QMessageBox::warning(this,QString::fromLocal8Bit("全部删除!"),QString::fromLocal8Bit("你确定删除所有数据字典吗?"),QMessageBox::Yes,QMessageBox::No);
+	if(ok == QMessageBox::Yes)
+	{
+		QString strsql;
+		
+		if (sql.dboracle==true)
+		{
+			strsql ="delete  from DICTIONARY "; 
+		}
+		else
+		{
+			strsql ="delete * from DICTIONARY ";
+		}
+		if(query.exec(strsql))
+			QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("已删除！"), QMessageBox::Yes);
+		this->ui.comboBox_3->clear();
+		QSqlTableModel* model = new QSqlTableModel(this,*sql.db);
+		ui.tableView_3->setModel(model);
+	}
+	else
+	{
+		return;
 	}
 }
 Deletedb::~Deletedb()

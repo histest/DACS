@@ -16,6 +16,7 @@ public:
 	void initUI();
 	QListView *namelistview; 
 	QStringListModel *model; 
+	void DisableInput();
 private:
 	Ui::DictionaryManagement ui;
 	private slots:

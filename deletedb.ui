@@ -72,7 +72,7 @@
             </size>
            </property>
            <property name="text">
-            <string>预览</string>
+            <string>查询</string>
            </property>
            <property name="icon">
             <iconset resource="QFramer.qrc">
@@ -191,40 +191,20 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>参数</string>
+       <string>芯片</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>按芯片名称查询</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
+            <string>芯片名称</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QComboBox" name="comboBox_2">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="radioButton_2">
-           <property name="text">
-            <string>按卫星名称查询</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comboBox_4">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -259,7 +239,7 @@
             </font>
            </property>
            <property name="text">
-            <string>预览</string>
+            <string>查询</string>
            </property>
            <property name="icon">
             <iconset resource="QFramer.qrc">
@@ -315,6 +295,12 @@
          </item>
          <item>
           <widget class="QPushButton" name="deleteAllButton">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>25</height>
+            </size>
+           </property>
            <property name="text">
             <string>全删</string>
            </property>
@@ -423,7 +409,7 @@
             </font>
            </property>
            <property name="text">
-            <string>预览</string>
+            <string>查询</string>
            </property>
            <property name="icon">
             <iconset resource="QFramer.qrc">
@@ -474,6 +460,19 @@
              <width>30</width>
              <height>30</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="deleteallButton_2">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>全删</string>
            </property>
           </widget>
          </item>

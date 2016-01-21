@@ -8,7 +8,7 @@ ConnectSql::ConnectSql()
 ConnectSql::~ConnectSql()
 {
     QString DBname=db->connectionName();
-  // db->close();
+   db->close();
    // QSqlDatabase::removeDatabase(DBname);
 
 }

@@ -29,6 +29,7 @@ private:
 		void on_previewButton_clicked();
 		void on_previewButton_2_clicked();
 		void initUI();
+
 };
 
 #endif // COMPONENTMANAGEMENT_H

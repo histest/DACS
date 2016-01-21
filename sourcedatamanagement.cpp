@@ -12,12 +12,13 @@ SourceDataManagement::SourceDataManagement(QWidget *parent)
 		"QHeaderView::section {background-color:white;color: black;padding-left: 4px;border: 1px solid #6c6c6c;};"
 		"color: white;padding-left: 4px;border: 1px solid #6c6c6c;}"
 		"QHeaderView::section:checked{background-color: white;color: black;}");
+	connect(ui.tableView, SIGNAL(clicked ( const QModelIndex &)), this,SLOT(showDictionary(const QModelIndex &)));
 }
 
 void SourceDataManagement::initUI()
 {
 	on_refreshButton_clicked();
-
+	ui.tableView->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 }
 void SourceDataManagement::on_refreshButton_clicked()
 {
@@ -32,7 +33,13 @@ void SourceDataManagement::on_refreshButton_clicked()
 	model->setHeaderData(6,Qt::Horizontal,tr("Sun_y"));
 	model->setHeaderData(7,Qt::Horizontal,tr("Sun_z"));
 	model->setHeaderData(8,Qt::Horizontal,tr("Sun_s"));
-	ui.tableView->setModel(model);
+	if (model)
+	{
+		QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
+		proxy->setSourceModel(model);
+		ui.tableView->setModel(proxy);
+	}
+	ui.tableView->setSortingEnabled(true);
 }
 void SourceDataManagement::on_clearButton_clicked()
 {
@@ -49,18 +56,28 @@ void SourceDataManagement::on_advancedButton_clicked()
 void SourceDataManagement::advancedpreview(QString strsql)
 {
 	QSqlQueryModel *model=new QSqlQueryModel();
-	/*strsql = "select * from SOURCEDATA "+strsql;*/
 	model->setQuery(strsql,*sql.db);
-	//model->setHeaderData(0,Qt::Horizontal,tr("ID"));
-	//model->setHeaderData(1,Qt::Horizontal,QString::fromLocal8Bit("时间"));
-	//model->setHeaderData(2,Qt::Horizontal,QString::fromLocal8Bit("卫星编号"));
-	//model->setHeaderData(3,Qt::Horizontal,QString::fromLocal8Bit("经度"));
-	//model->setHeaderData(4,Qt::Horizontal,QString::fromLocal8Bit("纬度"));
-	//model->setHeaderData(5,Qt::Horizontal,tr("Sun_x"));
-	//model->setHeaderData(6,Qt::Horizontal,tr("Sun_y"));
-	//model->setHeaderData(7,Qt::Horizontal,tr("Sun_z"));
-	//model->setHeaderData(8,Qt::Horizontal,tr("Sun_s"));
-	ui.tableView->setModel(model);
+	if (model)
+	{
+		QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
+		proxy->setSourceModel(model);
+		ui.tableView->setModel(proxy);
+	}
+	ui.tableView->setSortingEnabled(true);
+	ui.tableView->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
+}
+void SourceDataManagement::showDictionary(const QModelIndex &index)
+{
+	QString strvalue = ui.tableView->model()->data(index).toString();
+	QString strname = ui.tableView->model()->headerData(index.column(),Qt::Horizontal,0).toString();
+	QString strsql =QString("select * from DICTIONARY where NAME = '"+strname+"' and %1 =  '"+strvalue+"' order by ID").arg(QString::fromLocal8Bit("数值"));
+	QSqlQuery querypara(*sql.db);
+	querypara.exec(strsql);
+	while(querypara.next())
+	{
+		QToolTip::showText(QCursor::pos(), querypara.value(3).toString()); 
+	}
+
 }
 SourceDataManagement::~SourceDataManagement()
 {

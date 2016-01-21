@@ -33,11 +33,11 @@ void Changepwd::on_okButton_clicked()
 	 QString str = str.fromLocal8Bit("警告");
 
 	 QSqlQuery queryuser(*sql.db);
-	 queryuser.exec("select*from USERS where Name='"+user+"'and Password='"+oldpwd+"'");
+	 queryuser.exec("select*from USERS where Name='admin'and Password='"+oldpwd+"'");
 
 	 while(!queryuser.next())
 	 {
-		 QString str2 = str.fromLocal8Bit("密码错误！");
+		 QString str2 = str.fromLocal8Bit("管理员密码错误！");
 		 QMessageBox::warning(this,str,str2,QMessageBox::Ok);
 		 ui.oldpwdEdit->clear();
 		 ui.newpwdEdit->clear();
@@ -62,15 +62,15 @@ void Changepwd::on_okButton_clicked()
 		 QMessageBox::warning(this,str,str2,QMessageBox::Ok);
 		 return;
 	 }
-	 if (oldpwd==newpwd)
-	 {
-		 QString str2 = str.fromLocal8Bit("与原密码相同！");
-		 QMessageBox::warning(this,str,str2,QMessageBox::Ok);
-		 ui.oldpwdEdit->clear();
-		 ui.newpwdEdit->clear();
-		 ui.newpwdEdit_2->clear();
-		 return;
-	 }
+	 //if (oldpwd==newpwd)
+	 //{
+		// QString str2 = str.fromLocal8Bit("与原密码相同！");
+		// QMessageBox::warning(this,str,str2,QMessageBox::Ok);
+		// ui.oldpwdEdit->clear();
+		// ui.newpwdEdit->clear();
+		// ui.newpwdEdit_2->clear();
+		// return;
+	 //}
 
 	 bool bsucess= queryuser.exec("update USERS  set Password='"+newpwd+"'where Name='"+user+"'");
 	 if(bsucess)

@@ -1,12 +1,11 @@
 #include "odbcexcel.h"
 #include <QDebug>
-
 OdbcExcel::OdbcExcel()
 {
 }
 QString OdbcExcel::error;
 
-bool OdbcExcel::save(QString filePath, QStringList headers, QList<QStringList> data,QString comment)
+bool OdbcExcel::save(int flag,QString filePath, QStringList headers, QList<QStringList> data,QString comment)
 {
 	QString sheetName = "Sheet1";
 
@@ -36,10 +35,35 @@ bool OdbcExcel::save(QString filePath, QStringList headers, QList<QStringList> d
 	query.exec( sql);
 	//create the table (sheet in Excel file)
 	sql = QString("CREATE TABLE [%1] (").arg(sheetName);
+	int count=0;
 	foreach (QString name, headers) {
-		sql +=QString("[%1] varchar(200)").arg(name);
+
+		if(flag==1)
+		{
+			if(count==0)
+			{
+				sql +=QString("[%1] int").arg(name);
+			}
+			else if(count>2)
+			{
+				sql +=QString("[%1] double").arg(name);
+			}
+			else if(count==1)
+			{
+				sql +=QString("[%1] varchar(200)").arg(name);
+			}
+			else if(count==2)
+			{
+				sql +=QString("[%1] varchar(200)").arg(name);
+			}
+		}
+		else
+		{
+			sql +=QString("[%1] varchar(200)").arg(name);
+		}
 		if(name!=headers.last())
 			sql +=",";
+		count++;
 	}
 	sql += ")";
 	query.prepare( sql);
@@ -67,7 +91,7 @@ bool OdbcExcel::save(QString filePath, QStringList headers, QList<QStringList> d
 	return true;
 }
 
-bool OdbcExcel::saveFromTable(QString filePath,QTableView *tableView, QString comment)
+bool OdbcExcel::saveFromTable(int flag,QString filePath,QTableView *tableView, QString comment)
 {
 	QAbstractItemModel* model=tableView->model();
 	const int column=model->columnCount();
@@ -99,7 +123,7 @@ bool OdbcExcel::saveFromTable(QString filePath,QTableView *tableView, QString co
 		}
 		data<<list;
 	}
-	return OdbcExcel::save(filePath,headers,data,comment);
+	return OdbcExcel::save(flag,filePath,headers,data,comment);
 }
 
 void OdbcExcel::printError(QSqlError error)
@@ -123,7 +147,10 @@ bool OdbcExcel::insert(QSqlQuery &query, QString sheetName, QStringList slist)
 	query.prepare( sSql);
 	for(int i=0,n=slist.size();i<n;i++)
 	{
-		query.bindValue(QString(":%1").arg(i),slist.at(i));
+		double tempvalue =slist.at(i).toDouble();
+		QString str =slist.at(i);
+		str.replace("T"," ");
+		query.bindValue(i,str);//QString(":%1").arg(i)
 	}
 	if( !query.exec()) {
 		printError( query.lastError());

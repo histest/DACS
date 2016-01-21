@@ -49,10 +49,20 @@ void curve::initUI()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
+	bool Isexist=false;
 	while(query.next())
 	{
-		list.append(query.value(1).toString());
-		vecSat.push_back(query.value(1).toString());
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			list.append(query.value(1).toString());
+			vecSat.push_back(query.value(1).toString());
+		}
+		Isexist=false;
 	}
 	this->ui.comboBox->addItems(list);
 	Changed();	
@@ -100,6 +110,13 @@ void curve::initUI()
 	namelist->append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	namelist->append(QString::fromLocal8Bit("同步故障类型"));	
 	ui.comboBox_3->addItems(*namelist);
+	QDateTime now = QDateTime::currentDateTime();
+	QString endtime = now.toString("yyyy-MM-dd hh:mm:ss");  
+	ui.enddateEdit->setText(endtime);
+
+	QDateTime start = now.addYears(-1);
+	QString starttime = start.toString("yyyy-MM-dd hh:mm:ss");  
+	ui.startdateEdit->setText(starttime);
 }
 void curve::refresh()
 {
@@ -107,15 +124,26 @@ void curve::refresh()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
+	bool Isexist=false;
 	while(query.next())
 	{
-		list.append(query.value(1).toString());
-
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			list.append(query.value(1).toString());
+			vecSat.push_back(query.value(1).toString());
+		}
+		Isexist=false;
 	}
 	this->ui.comboBox->addItems(list);
 }
 void curve::setupChart()
 {
+	this->moveToThread(&displayThread);
 	static int day_tab[2][12] = {{31,28,31,30,31,30,31,31,30,31,30,31},{31,29,31,30,31,30,31,31,30,31,30,31}};
 	int xcount,remainday,remainsecs;
 	double totalcount=0;
@@ -199,7 +227,7 @@ void curve::setupChart()
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("GB2312"));
 	if(IsBarchart==true)
 	{
-		chart->setPlotArea(50, 50, 800, 420, 0xf8f8f8, 0xffffff);
+		chart->setPlotArea(50, 50, 800, 410, 0xf8f8f8, 0xffffff);
 		chart->addLegend(300, 25, false, "simsun.ttc", 10)->setBackground(Chart::Transparent);
 		chart->xAxis()->setTickOffset(0.5);
 		const char *labels[256] = {};
@@ -207,7 +235,7 @@ void curve::setupChart()
 	}
 	else
 	{
-		chart->setPlotArea(50, 50, 921, 400, chart->linearGradientColor(0, 55, 0, 335, 0xf9fcff, 0xaaccff), -1,
+		chart->setPlotArea(50, 50, 921, 390, chart->linearGradientColor(0, 55, 0, 335, 0xf9fcff, 0xaaccff), -1,
 			Chart::Transparent, 0xffffff);
 		chart->addLegend(300, 25, false, "simsun.ttc", 10)->setBackground(Chart::Transparent);
 		const char *labels[256] = {};
@@ -280,6 +308,7 @@ void curve::setupChart()
 		query.exec(sqllist.at(i));
 		while(query.next())
 		{
+			QCoreApplication::processEvents();
 			//计算与开始日期的日差
 			QDateTime datetime = query.value(3).toDateTime();
 			int currentYear = datetime.date().year();
@@ -715,21 +744,33 @@ void curve::setupChart()
 	
 	}
 	// Add a title to the y-axis
-	chart->yAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("数量").constData(), "simsun.ttc", 9);
+	chart->yAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("数量").constData(), "simsun.ttc",10);
 	chart->yAxis()->setAutoScale();
 
-
+	chart->xAxis()->setAutoScale();
 	if (index==0)
 	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/月").constData(), "simsun.ttc", 9);//"Time/week"
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/月").constData(), "simsun.ttc", 10);//"Time/week"
 	}
 	else if (index==1)
 	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/年").constData(), "simsun.ttc", 9);//"Time/week"
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/年").constData(), "simsun.ttc", 10);//"Time/week"
 	}
 	else if (index==2)
 	{
-		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/天").constData(), "simsun.ttc", 9);//"Time/week"
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/时").constData(), "simsun.ttc", 10);//"Time/week"
+	}
+	else if (index==3)
+	{
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/分").constData(), "simsun.ttc", 10);//"Time/week"
+	}
+	else if (index==4)
+	{
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/秒").constData(), "simsun.ttc", 8);//"Time/week"
+	}
+	else if (index==5)
+	{
+		chart->xAxis()->setTitle(QTextCodec::codecForName("UTF-8")->fromUnicode("时间/天").constData(), "simsun.ttc", 8);//"Time/week"
 	}
 	// Output the chart
 	//chart->makeChart("multishapebar.png");
@@ -847,7 +888,7 @@ void curve::on_outputButton_clicked()
 	if(dlg.exec()!= QDialog::Accepted)
 		return;
 	QString filePath=dlg.selectedFiles()[0];
-	if(OdbcExcel::saveFromTable(filePath,ui.tableWidget,"")) {
+	if(OdbcExcel::saveFromTable(0,filePath,ui.tableWidget,"")) {
 		QString str = str.fromLocal8Bit("提示");
 		QString str2 = str.fromLocal8Bit("保存成功");
 		QMessageBox::information(this,str,str2);
@@ -924,23 +965,51 @@ void curve::Changed()
 {
 	this->ui.listWidget->clear();
 	QString strSat = ui.comboBox->currentText();
+	QStringList chipList;
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER where SATELLITENO = '"+strSat+"'order by ID");
+	query.exec("select*from SATELLITE_PUBLIC where SATELLITENO = '"+strSat+"' order by ID");
+	while(query.next())
+	{
+		chipList.append(query.value(3).toString());
+	}
+	int count =chipList.count();
 	QStringList list;
+	QString strsql;
+	if(count==1)
+	{
+		strsql= "select * from PARAMETER where CHIPNAME = '"+chipList.at(0)+"' order by ID";
+	}
+	if (count>1)
+	{
+		strsql= "select * from PARAMETER where ";
+		for (int i=0;i<count;i++)
+		{
+			strsql +="CHIPNAME = '"+chipList.at(i)+"'";
+			if(i!=count-1)
+				strsql +=" or ";
+		}
+	}
+	query.exec(strsql);
 	while(query.next())
 	{
 		QString str = str.fromLocal8Bit("芯片名称：");
+		list.append(str+query.value(1).toString());
+		str = str.fromLocal8Bit("  规格：");
+		list.append(str+query.value(2).toString());
+		str = str.fromLocal8Bit("  封装：");
 		list.append(str+query.value(3).toString());
-		str = str.fromLocal8Bit("规格：");
+		str = str.fromLocal8Bit("  额定电压：");
 		list.append(str+query.value(4).toString());
-		str = str.fromLocal8Bit("封装：");
+		str = str.fromLocal8Bit("  总剂量：");
 		list.append(str+query.value(5).toString());
-		str = str.fromLocal8Bit("额定电压：");
+		str = str.fromLocal8Bit("  单粒子翻转：");
 		list.append(str+query.value(6).toString());
-		str = str.fromLocal8Bit("额定电流：");
+		str = str.fromLocal8Bit("  单粒子锁定：");
 		list.append(str+query.value(7).toString());
-		str = str.fromLocal8Bit("抗辐射指标：");
+		str = str.fromLocal8Bit("  厂家：");
 		list.append(str+query.value(8).toString());
+		str = str.fromLocal8Bit("  备注：");
+		list.append(str+query.value(9).toString());
 	}
 	this->ui.listWidget->addItems(list);
 }

@@ -76,7 +76,7 @@
          <item>
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>起始时间：</string>
+            <string>结束时间：</string>
            </property>
           </widget>
          </item>
@@ -134,7 +134,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>参数数据</string>
+       <string>芯片数据</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>

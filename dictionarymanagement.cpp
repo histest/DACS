@@ -33,7 +33,7 @@ void DictionaryManagement::initUI()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from DICTIONARY order by ID");
 	QStringList list;
-	bool Isexist;
+	bool Isexist=false;
 	while(query.next())
 	{
 		for (int i=0;i<list.count();i++)
@@ -51,6 +51,14 @@ void DictionaryManagement::initUI()
 	//{
 	//	vtpara.push_back(namelist->at(i));
 	//}
+}
+void DictionaryManagement::DisableInput()
+{
+	ui.comboBox->setEnabled(false);
+	ui.inputButton->setEnabled(false);
+	ui.openButton->setEnabled(false);
+	ui.outButton->setEnabled(false);
+	ui.previewButton_2->setEnabled(false);
 }
 QStringList CSVListdictionary; 
 void DictionaryManagement::on_openButton_clicked()
@@ -92,6 +100,13 @@ void DictionaryManagement::on_openButton_clicked()
 		if (row!=0)
 		{
 			QStringList info = str.split(",");
+			if (info.length()!=4)
+			{
+				QString str = str.fromLocal8Bit("提示");
+				QString str2 = str.fromLocal8Bit("导入文件格式错误！");
+				QMessageBox::information(this,str,str2);
+				return;
+			}
 			ui.tableWidget->setItem(row-1,0,new QTableWidgetItem(info[0]));  
 			ui.tableWidget->setItem(row-1,1,new QTableWidgetItem(info[1]));  
 			ui.tableWidget->setItem(row-1,2,new QTableWidgetItem(info[2]));  
@@ -197,7 +212,7 @@ void DictionaryManagement::on_outButton_clicked()
 	if(dlg.exec()!= QDialog::Accepted)
 		return;
 	QString filePath=dlg.selectedFiles()[0];
-	if(OdbcExcel::saveFromTable(filePath,ui.tableView_2,"")) {
+	if(OdbcExcel::saveFromTable(0,filePath,ui.tableView_2,"")) {
 		QString str = str.fromLocal8Bit("提示");
 		QString str2 = str.fromLocal8Bit("保存成功");
 		QMessageBox::information(this,str,str2);

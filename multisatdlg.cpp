@@ -18,10 +18,19 @@ void  MultiSatDlg::initUI()
 	verticalSpacer = new QSpacerItem(20, 250, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	QSqlQuery query(*sql.db);
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
+	bool Isexist=false;
 	while(query.next())
 	{
-		satlist.append(query.value(1).toString());
-
+		for (int i=0;i<satlist.count();i++)
+		{
+			if (query.value(1).toString()==satlist.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			satlist.append(query.value(1).toString());
+		}
+		Isexist=false;
 	}
 	on_addSatButton_clicked();
 }
@@ -66,6 +75,12 @@ void  MultiSatDlg::on_addSatButton_clicked()
 	QComboBox*satcombox= new QComboBox;
 	QLabel*label = new QLabel;
 
+	QDateTime now = QDateTime::currentDateTime();
+	QString endtime = now.toString("yyyy-MM-dd hh:mm:ss");  
+
+	QDateTime start = now.addYears(-1);
+	QString starttime = start.toString("yyyy-MM-dd hh:mm:ss");  
+
 	label->setText(QString::fromLocal8Bit("Ãû³Æ"));
 	label->setFixedWidth(48);
 	satcombox->addItems(satlist);
@@ -82,7 +97,7 @@ void  MultiSatDlg::on_addSatButton_clicked()
 	QLineEdit*startTimeEdit = new QLineEdit;
 	startTimeEdit->setFixedHeight(20);
 	startTimeEdit->setFixedWidth(200);
-	startTimeEdit->setText("2013-01-01 00:00:00");
+	startTimeEdit->setText(starttime);
 	startlineedits.append(startTimeEdit);
 
 	QPushButton*startButton = new QPushButton;
@@ -103,7 +118,7 @@ void  MultiSatDlg::on_addSatButton_clicked()
 	QLineEdit*endTimeEdit = new QLineEdit;
 	endTimeEdit->setFixedHeight(20);
 	endTimeEdit->setFixedWidth(200);
-	endTimeEdit->setText("2013-01-31 00:00:00");
+	endTimeEdit->setText(endtime);
 	endlineedits.append(endTimeEdit);
 
 	QPushButton*endButton = new QPushButton;

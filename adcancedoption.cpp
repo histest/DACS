@@ -25,10 +25,19 @@ void Adcancedoption::initUI()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
+	bool Isexist=false;
 	while(query.next())
 	{
-		list.append(query.value(1).toString());
-
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			list.append(query.value(1).toString());
+		}
+		Isexist=false;
 	}
 	ui.listWidget->addItems(list);
 
@@ -93,6 +102,14 @@ void Adcancedoption::initUI()
 	verticalSpacer = new QSpacerItem(20, 180, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	ui.verticalLayout->addItem(verticalSpacer);
 	ui.radioButton->setChecked(true);
+
+	QDateTime now = QDateTime::currentDateTime();
+	QString endtime = now.toString("yyyy-MM-dd hh:mm:ss");  
+	ui.enddateEdit->setText(endtime);
+
+	QDateTime start = now.addYears(-1);
+	QString starttime = start.toString("yyyy-MM-dd hh:mm:ss");  
+	ui.startdateEdit->setText(starttime);
 }
 //Æ½ÈòÄêµÄÅÐ¶Ï// 
 int Adcancedoption:: leap(int year) 
@@ -457,7 +474,7 @@ QString Adcancedoption::getsift(QString strsift)
 }
 void Adcancedoption::on_cancelButton_clicked()
 {
-	this->close();
+	this->hide();
 }
 void  Adcancedoption::on_addButton_clicked()
 {

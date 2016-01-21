@@ -55,7 +55,7 @@
         <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>原密码：    </string>
+           <string>管理员密码：</string>
           </property>
          </widget>
         </item>

@@ -67,7 +67,7 @@ void UIElement::SourceInfoManagement()
 
 void UIElement::ComponentInfoManagement()
 {
-	QString str = str.fromLocal8Bit("参数管理");
+	QString str = str.fromLocal8Bit("芯片管理");
 	componentmanagement = new ComponentManagement;
     addWidget(str, QString(""), componentmanagement,3);
 }

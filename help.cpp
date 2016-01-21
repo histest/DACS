@@ -50,7 +50,7 @@ void help::on_commandLinkButton_5_clicked()
 {
 	QString strfile;
 	strfile = QCoreApplication::applicationDirPath();
-	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统使用说明书.doc");
+	QString strPath = strPath.fromLocal8Bit("/在轨数据收集与分析系统使用说明书.chm");
 	strPath=strfile+strPath;
 	QDesktopServices::openUrl ( QUrl::fromLocalFile(strPath));
 }

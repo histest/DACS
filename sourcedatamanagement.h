@@ -20,6 +20,7 @@ private:
 		void on_clearButton_clicked();
 		void on_advancedButton_clicked();
 		void advancedpreview(QString);
+		void showDictionary(const QModelIndex &);
 };
 
 #endif // SOURCEDATAMANAGEMENT_H

@@ -22,7 +22,7 @@ void MainWindow::initData(bool IsAdmin,bool IsAuthorized)
 	{
 		centerWindow->uiElements->productmanagement->DisableInput();
 		centerWindow->uiElements->componentmanagement->DisableInput();
-			/*->buttons.at(0)->setEnabled(false);*/
+		centerWindow->uiElements->dictionaryManagement->DisableInput();
 	}
 
 }

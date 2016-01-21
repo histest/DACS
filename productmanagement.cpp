@@ -14,6 +14,7 @@ extern ConnectSql sql;
 
 using namespace std;
 vector <QString> vSat; 
+int chosecount;
 ProductManagement::ProductManagement(QWidget *parent)
 	: QWidget(parent)
 {
@@ -39,11 +40,12 @@ ProductManagement::ProductManagement(QWidget *parent)
 }
 void ProductManagement::initUI()
 {
+	search= new Advancedsearch;
 	this->ui.comboBox->clear();
 	QSqlQuery query(*sql.db);
-	query.exec("select*from SATELLITE_PUBLIC order by ID");
+	query.exec("select*from SATELLITE_PUBLIC");
 	QStringList list;
-	bool Isexist;
+	bool Isexist =false;
 	while(query.next())
 	{
 		for (int i=0;i<list.count();i++)
@@ -62,8 +64,7 @@ void ProductManagement::initUI()
 
 	QSqlQueryModel *model=new QSqlQueryModel();
 	ui.tableView_2->setModel(model);
-	//ui.tableView_2->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-
+	ui.tableView_2->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 }
 void ProductManagement::refresh()
 {
@@ -105,7 +106,7 @@ void ProductManagement::on_openButton_clicked()
 	QFile csvFile(fileName); 
 	ui.lineEdit->setText(fileName);
 	CSVList.clear();
-
+	ui.tableWidget->setRowCount(0);
 	if (csvFile.open(QIODevice::ReadWrite)) 
 	{ 
 		QTextStream stream(&csvFile); 
@@ -116,6 +117,9 @@ void ProductManagement::on_openButton_clicked()
 		csvFile.close(); 
 	} 
 
+	this->moveToThread(&visuaThread);
+	//visuaThread.start();
+	//QCoreApplication::processEvents();
 	if (CSVList.count()==0)
 	{
 		return;
@@ -152,7 +156,7 @@ void ProductManagement::on_openButton_clicked()
 	header.append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	header.append(QString::fromLocal8Bit("同步故障类型"));	
 
-	ui.tableWidget->setRowCount(CSVList.size()-1);
+	//ui.tableWidget->setRowCount(CSVList.size()-1);
 	ui.tableWidget->setColumnCount(36);  
 	ui.tableWidget->setHorizontalHeaderLabels(header);  
 //	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
@@ -161,7 +165,15 @@ void ProductManagement::on_openButton_clicked()
 	{ 
 		if (row!=0)
 		{
+			ui.tableWidget->insertRow(row-1);
 			QStringList info = str.split(",");
+			if (info.length()!=36)
+			{
+				QString str = str.fromLocal8Bit("提示");
+				QString str2 = str.fromLocal8Bit("导入文件格式错误！");
+				QMessageBox::information(this,str,str2);
+				return;
+			}
 			//ui.tableWidget->setItem(row-1,0,new QTableWidgetItem(info[0]));  
 			//ui.tableWidget->setItem(row-1,1,new QTableWidgetItem(info[1]));  
 			//ui.tableWidget->setItem(row-1,2,new QTableWidgetItem(info[2]));  
@@ -171,24 +183,86 @@ void ProductManagement::on_openButton_clicked()
 			//ui.tableWidget->setItem(row-1,6,new QTableWidgetItem(info[6]));  
 			//ui.tableWidget->setItem(row-1,7,new QTableWidgetItem(info[7]));  
 			//ui.tableWidget->setItem(row-1,8,new QTableWidgetItem(info[8]));  
-			for (int i=0;i<36;i++)
+			for (int i=0;i<info.length();i++)
 			{
 				ui.tableWidget->setItem(row-1,i,new QTableWidgetItem(info[i]));  
 			}
+			 QCoreApplication::processEvents();
 		}
 		row++;
 	}
 }
 void ProductManagement::on_inputButton_clicked()
 {
+	//inputThread.exit();
 	if (CSVList.count()==0)
 	{
 		return;
 	}
 	int i=0;
+	QString satelliteNo ;
+	QSqlQuery querysat(*sql.db);
+	QSqlQuery querysource(*sql.db);
+	int row =0;
+	bool Isexist = false;
+	Q_FOREACH(QString str, CSVList) 
+	{ 
+		if (row!=0)
+		{
+			QStringList info = str.split(",");
+			satelliteNo = info[1];
+			break;
+		}
+		row++;
+	}
+	querysat.exec("select*from SATELLITE_PUBLIC");
+	while(querysat.next())
+	{
+		if (querysat.value(1).toString()==satelliteNo)
+		{
+			Isexist =true;
+		}
+	}
+	if (!Isexist)
+	{
+		SelectChip*chip = new SelectChip;
+		if (chip->chipCount==0)
+		{
+			QString str = str.fromLocal8Bit("提示");
+			QString str2 = str.fromLocal8Bit("请先在芯片关联页面定义芯片信息！");
+			QMessageBox::information(this,str,str2);
+			return;
+		}
+		if(chip->exec()==QDialog::Accepted)
+		{
+			querysat.exec("select*from SATELLITE_PUBLIC");
+			int satcount =0;
+			while(querysat.next())
+			{
+				satcount++;
+			}
+			satcount++;
+			for (int i=0;i<chip->chiplist.count();i++)
+			{
+				querysat.prepare("INSERT INTO SATELLITE_PUBLIC VALUES (?, ?, ?, ?)");
+				querysat.bindValue(0,satcount);
+				querysat.bindValue(1,satelliteNo);
+				querysat.bindValue(2,500);
+				querysat.bindValue(3,chip->chiplist.at(i));
+				querysat.exec();
+				satcount++;
+			}
+		}
+		else
+		{
+			return;
+		}
+	}
+
+
 	ProgressBar*progress = new ProgressBar();
-	int row = ui.tableWidget->rowCount();
-	progress->ui.progressBar->setRange(0,row);
+
+	progress->ui.progressBar->setRange(0,CSVList.size());
 	progress->setWindowFlags(Qt::FramelessWindowHint);
 	progress->setModal(false);
 	progress->show();
@@ -201,10 +275,11 @@ void ProductManagement::on_inputButton_clicked()
 			info[0].replace("/","-");
 			QString strcurrentDateTime=info[0];
 			if(strcurrentDateTime=="") continue;
+			if(!strcurrentDateTime.contains(" ",Qt::CaseSensitive)) continue;
 			QStringList info2=strcurrentDateTime.split(" ");
 			QString strcurrentDate=info2[0];
 			QString strcurrentTime=info2[1];
-
+			if(!strcurrentDate.contains("-",Qt::CaseSensitive)) continue;
 			QStringList info4=strcurrentDate.split("-");
 			QString strYear = info4[0];
 			QString strMonth = info4[1];
@@ -268,14 +343,18 @@ void ProductManagement::on_inputButton_clicked()
 				progress->close();
 				return;
 			}			
+			else
+			{
+				break;
+			}
 		}
 		i++;
 		progress->ui.progressBar->setValue(i); 
 	}
+	this->moveToThread(&inputThread);
 	progress->ui.progressBar->setValue(0); 
 	progress->ui.label_2->setText(QString::fromLocal8Bit("正在导入"));
-	QSqlQuery querysat(*sql.db);
-	QSqlQuery querysource(*sql.db);
+
 	querysat.exec("select*from SATELLITE ");
 	QString ID;
 	int totalcount =0;
@@ -294,7 +373,7 @@ void ProductManagement::on_inputButton_clicked()
 	QString time ;
 	double longitude = 100;
 	double latitude = 50;
-	QString satelliteNo ;
+
 	querysat.prepare("INSERT INTO SATELLITE "
 		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 	querysource.prepare("INSERT INTO SOURCEDATA "
@@ -306,6 +385,7 @@ void ProductManagement::on_inputButton_clicked()
 	{ 
 		if (row!=0)
 		{
+			QCoreApplication::processEvents();
 			QStringList info = str.split(",");
 			querysat.bindValue(0, totalcount);
 			querysource.bindValue(0, sourcecount);
@@ -368,9 +448,13 @@ void ProductManagement::on_inputButton_clicked()
 
 			if(row>1)
 			{
-				if(info[11].toInt()<lastcount)
+				if(info[11].toInt()<lastcount &&  lastcount == 31)
 				{
 					deltacount=info[11].toInt()+32-lastcount;	
+				}
+				else if(info[11].toInt()<lastcount &&  lastcount != 31)
+				{
+					deltacount=lastcount-info[11].toInt();	
 				}
 				else
 				{
@@ -438,30 +522,6 @@ void ProductManagement::on_inputButton_clicked()
 	}
 	progress->close();
 
-	SelectChip*chip = new SelectChip;
-	if(chip->exec()==QDialog::Accepted)
-	{
-		querysat.exec("select*from SATELLITE_PUBLIC");
-		int satcount =0;
-		while(querysat.next())
-		{
-			if (querysat.value(1).toString()==satelliteNo)
-			{
-				return;
-			}
-			satcount++;
-		}
-		for (int i=0;i<chip->chiplist.count();i++)
-		{
-			querysat.prepare("INSERT INTO SATELLITE_PUBLIC VALUES (?, ?, ?, ?)");
-			querysat.bindValue(0,satcount);
-			querysat.bindValue(1,satelliteNo);
-			querysat.bindValue(2,500);
-			querysat.bindValue(3,chip->chiplist.at(i));
-			querysat.exec();
-			satcount++;
-		}
-	}
 	QString str = str.fromLocal8Bit("提示");
 	QString str2 = str.fromLocal8Bit("导入成功！");
 	QMessageBox::information(this,str,str2);
@@ -474,6 +534,7 @@ void ProductManagement::on_previewButton_clicked()
 		return;
 	}
 	QStringList header;  
+
 	header<<QString::fromLocal8Bit("时间")<<QString::fromLocal8Bit("单错次数")<<QString::fromLocal8Bit("经度")<<QString::fromLocal8Bit("纬度")<<"digital_sun_x"<<"digital_sun_y"<<"digital_sun_z"<<"digital_sun_s"<<QString::fromLocal8Bit("卫星编号");  //<<"Height"
 	ui.tableWidget->setRowCount(CSVList.size()-1);
 	ui.tableWidget->setColumnCount(9);  
@@ -521,7 +582,7 @@ void ProductManagement::on_outButton_clicked()
 	if(dlg.exec()!= QDialog::Accepted)
 		return;
 	QString filePath=dlg.selectedFiles()[0];
-	if(OdbcExcel::saveFromTable(filePath,ui.tableView_2,"")) {
+	if(OdbcExcel::saveFromTable(1,filePath,ui.tableView_2,"")) {
 		QString str = str.fromLocal8Bit("提示");
 		QString str2 = str.fromLocal8Bit("保存成功");
 		QMessageBox::information(this,str,str2);
@@ -566,40 +627,65 @@ void ProductManagement::on_previewButton_2_clicked()
 	model->setHeaderData(6,Qt::Horizontal,tr("Sun_y"));
 	model->setHeaderData(7,Qt::Horizontal,tr("Sun_z"));
 	model->setHeaderData(8,Qt::Horizontal,tr("Sun_s"));
-	ui.tableView_2->setModel(model);
+
+	if (model)
+	{
+		QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
+		proxy->setSourceModel(model);
+		ui.tableView_2->setModel(proxy);
+	}
+	ui.tableView_2->setSortingEnabled(true);
+	ui.tableView_2->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 }
 void ProductManagement::on_refreshButton_clicked()
 {
-	/*IsStop=false;*/
-	refresh();
+	this->ui.comboBox->clear();
+	QSqlQuery query(*sql.db);
+	query.exec("select*from SATELLITE_PUBLIC");
+	QStringList list;
+	bool Isexist =false;
+	while(query.next())
+	{
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			list.append(query.value(1).toString());
+			vSat.push_back(query.value(1).toString());
+		}
+		Isexist=false;
+	}
+	this->ui.comboBox->addItems(list);
 }
 void ProductManagement::on_advancedsearchButton_clicked()
 {
-
-	search= new Advancedsearch;
 	connect(search,SIGNAL(getsql(QString)), this, SLOT(advancedpreview(QString)));
 	search->setWindowModality(Qt::WindowModal);
-	search->setFlag(1);
+	if (chosecount>0)
+	{
+		search->show();
+	}
+	else
+	{
+		search->setFlag(1);
+	}
+	chosecount++;
 }
 void ProductManagement::advancedpreview(QString strsql)
 {
 	QSqlQueryModel *model=new QSqlQueryModel();
 	QString strSat =ui.comboBox->currentText();
-
-	//strsql = "select * from SATELLITE "+strsql;
 	model->setQuery(strsql,*sql.db);
-	//model->setHeaderData(0,Qt::Horizontal,tr("ID"));
-	//model->setHeaderData(1,Qt::Horizontal,QString::fromLocal8Bit("时间"));
-	//model->setHeaderData(2,Qt::Horizontal,QString::fromLocal8Bit("卫星编号"));
-	//model->setHeaderData(3,Qt::Horizontal,QString::fromLocal8Bit("经度"));
-	//model->setHeaderData(4,Qt::Horizontal,QString::fromLocal8Bit("纬度"));
-	///*	model->setHeaderData(5,Qt::Horizontal,tr("Height"));*/
-	//model->setHeaderData(5,Qt::Horizontal,tr("Sun_x"));
-	//model->setHeaderData(6,Qt::Horizontal,tr("Sun_y"));
-	//model->setHeaderData(7,Qt::Horizontal,tr("Sun_z"));
-	//model->setHeaderData(8,Qt::Horizontal,tr("Sun_s"));
-	ui.tableView_2->setModel(model);
-
+	if (model)
+	{
+		QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
+		proxy->setSourceModel(model);
+		ui.tableView_2->setModel(proxy);
+	}
+	ui.tableView_2->setSortingEnabled(true);
 }
 void ProductManagement::setCompleter(const QString &text) {
 	namelistview->hide();

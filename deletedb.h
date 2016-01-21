@@ -37,6 +37,8 @@ private:
 		void on_previewButton_4_clicked();
 		void on_deleteButton_3_clicked();
 		void on_saveButton_3_clicked();
+		void on_deleteAllButton_clicked();
+		void on_deleteallButton_2_clicked();
 };
 
 #endif // DELETEDB_H

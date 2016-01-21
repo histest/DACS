@@ -32,6 +32,7 @@ osgdisplay::osgdisplay(QWidget *parent)
 	installEventFilter(namelistview);
 	connect(namelistview, SIGNAL(clicked(const QModelIndex &)), this, SLOT(completeText(const QModelIndex &)));
 	connect(ui.comboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(setCompleter(const QString &)));
+	connect(ui.comboBox,SIGNAL(currentIndexChanged(int)), this, SLOT(onChanged()));
 }
 void osgdisplay::initUI()
 {
@@ -41,10 +42,20 @@ void osgdisplay::initUI()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
+	bool Isexist=false;
 	while(query.next())
 	{
-		list.append(query.value(1).toString());
-		veSat.push_back(query.value(1).toString());
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			list.append(query.value(1).toString());
+			veSat.push_back(query.value(1).toString());
+		}
+		Isexist=false;
 	}
 	this->ui.comboBox->addItems(list);
 	onChanged();
@@ -109,6 +120,14 @@ void osgdisplay::initUI()
 	namelist->append(QString::fromLocal8Bit("NOR_FLASH错误计数"));	
 	namelist->append(QString::fromLocal8Bit("同步故障类型"));	
 	ui.comboBox_3->addItems(*namelist);
+
+	QDateTime now = QDateTime::currentDateTime();
+	QString endtime = now.toString("yyyy-MM-dd hh:mm:ss");  
+	ui.enddateEdit->setText(endtime);
+
+	QDateTime start = now.addYears(-1);
+	QString starttime = start.toString("yyyy-MM-dd hh:mm:ss");  
+	ui.startdateEdit->setText(starttime);
 }
 void osgdisplay::refresh()
 {
@@ -116,10 +135,20 @@ void osgdisplay::refresh()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
 	QStringList list;
+	bool Isexist=false;
 	while(query.next())
 	{
-		list.append(query.value(1).toString());
-
+		for (int i=0;i<list.count();i++)
+		{
+			if (query.value(1).toString()==list.at(i))
+				Isexist=true;
+		}
+		if(!Isexist)
+		{
+			list.append(query.value(1).toString());
+			veSat.push_back(query.value(1).toString());
+		}
+		Isexist=false;
 	}
 	this->ui.comboBox->addItems(list);
 	IsStop=true;
@@ -227,16 +256,179 @@ void calculateposition(double longitude, double latitude,double  coordinate[2])
 }
 osg::Group*osgdisplay::InitSceneGraph(void)
 {
-	//double LongitudeCount = ui.longitudeBox->currentText().toDouble();
-	//double LatitudeCount = ui.latitudeBox->currentText().toDouble();
 	double UnitLongitude = (double)360/LongitudeCount;
 	double UnitLatitude = (double)180/LatitudeCount;
 
 	osg::Group*	mRoot  = new osg::Group;
 
 
+	//osg::Geometry* Axis=new osg::Geometry;
+
+	//osg::Vec3Array* vecArray=new osg::Vec3Array;
+
+	//vecArray->push_back(osg::Vec3(0.0,0.0,0.0));
+
+	//vecArray->push_back(osg::Vec3(100.0,0.0,0.0));
+
+	//vecArray->push_back(osg::Vec3(0.0,100.0,0.0));
+
+	//vecArray->push_back(osg::Vec3(0.0,0.0,100.0));
+
+
+
+	//osg::Vec3Array* color=new osg::Vec3Array;
+
+	//color->push_back(osg::Vec3(1.0,0.0,0.0));
+
+	//color->push_back(osg::Vec3(0.0,1.0,0.0));
+
+	//color->push_back(osg::Vec3(0.0,0.0,1.0));
+
+
+
+	//osg::TemplateIndexArray<unsigned int, osg::Array::UIntArrayType,4,4> *colorIndexArray
+
+	//	=new osg::TemplateIndexArray<unsigned int, osg::Array::UIntArrayType,4,4>;
+
+	//colorIndexArray->push_back(0);
+
+	//colorIndexArray->push_back(1);
+
+	//colorIndexArray->push_back(2);
+
+
+
+	//Axis->setVertexArray(vecArray);
+
+	//Axis->setColorArray(color);
+
+	//Axis->setColorIndices(colorIndexArray);
+
+	//Axis->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE);
+
+
+
+	//osg::DrawElementsUInt* pXaxisPrimitiveSet=new osg::DrawElementsUInt(osg::PrimitiveSet::LINES);
+
+	//pXaxisPrimitiveSet->push_back(0);
+
+	//pXaxisPrimitiveSet->push_back(1);
+
+	//osg::DrawElementsUInt* pYaxisPrimitiveSet=new osg::DrawElementsUInt(osg::PrimitiveSet::LINES);
+
+	//pYaxisPrimitiveSet->push_back(0);
+
+	//pYaxisPrimitiveSet->push_back(2);
+
+	//osg::DrawElementsUInt* pZaxisPrimitiveSet=new osg::DrawElementsUInt(osg::PrimitiveSet::LINES);
+
+	//pZaxisPrimitiveSet->push_back(0);
+
+	//pZaxisPrimitiveSet->push_back(3);
+
+
+
+	//Axis->addPrimitiveSet(pXaxisPrimitiveSet);
+
+	//Axis->addPrimitiveSet(pYaxisPrimitiveSet);
+
+	//Axis->addPrimitiveSet(pZaxisPrimitiveSet);
+	//osg::Geode* AxisGeode=new osg::Geode;
+
+	//AxisGeode->addDrawable(Axis);
+	////set some attribute
+
+	//osg::LineWidth* lineW=new osg::LineWidth;
+
+	//lineW->setWidth(3.0);
+
+
+
+	//osg::StateSet* stateset=AxisGeode->getOrCreateStateSet();
+
+	//stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
+
+	//stateset->setAttribute(lineW,osg::StateAttribute::ON);
+
+	//End Draw Axis
+
+
+
+	//Begin add Text
+
+	//osg::Geode* HudGeode=new osg::Geode;
+
+	//osgText::Text* textx = new osgText::Text();
+
+	//HudGeode->addDrawable(textx);
+
+	//osgText::Text* texty=new osgText::Text();
+
+	//HudGeode->addDrawable(texty);
+
+	//osgText::Text* textz=new osgText::Text();
+
+	//HudGeode->addDrawable(textz);
+
+
+
+	//// 设置HUD文字的参数
+
+	//textx->setCharacterSize(5);
+
+	//textx->setFont("C:/WINDOWS/Fonts/SIMKAI.ttf");//宋体
+
+	//textx->setText(L"x 轴");
+
+	//textx->setAxisAlignment(osgText::Text::XZ_PLANE);
+
+	//textx->setAlignment(osgText::Text::CENTER_TOP);
+
+	//textx->setPosition( osg::Vec3(100.0,0.0,0.0) );
+
+	//textx->setColor( osg::Vec4(1.0, 0.0, 0.0, 1) );
+
+
+
+
+
+	//texty->setCharacterSize(5);
+
+	//texty->setFont("C:/WINDOWS/Fonts/SIMKAI.ttf");//楷体
+
+	//texty->setText(L"y 轴");
+
+	//texty->setAxisAlignment(osgText::Text::YZ_PLANE);
+
+	//texty->setAlignment(osgText::Text::CENTER_TOP);
+
+	//texty->setPosition( osg::Vec3(0.0,100.0,0.0) );
+
+	//texty->setColor( osg::Vec4(0.0, 1.0, 0.0, 1) );
+
+
+
+	//textz->setCharacterSize(5);
+
+	//textz->setFont("C:/WINDOWS/Fonts/SIMKAI.ttf");//楷体
+
+	//textz->setText(L"z 轴");
+
+	//textz->setAxisAlignment(osgText::Text::XZ_PLANE);
+
+	//textz->setAlignment(osgText::Text::CENTER_TOP);
+
+	//textz->setPosition(osg::Vec3(0.0,0.0,100.0));
+
+	//textz->setColor(osg::Vec4(0.0, 0.0, 1.0, 1));
+
+	//mRoot->addChild(HudGeode);
+	//mRoot->addChild(AxisGeode);
+	
+
 
 	//地图
+
 	osg::ref_ptr<osg::MatrixTransform> matrixEarth = new osg::MatrixTransform;
 	osg::ref_ptr<osg::TessellationHints> pHints = new osg::TessellationHints;
 	pHints->setDetailRatio(5.0f);
@@ -252,6 +444,18 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 	pGeodeOfEarth->setNodeMask(1);
 	pGeodeOfEarth->setName("Earth");
 	mRoot ->addChild (pGeodeOfEarth);
+
+	// 创建圆柱体
+	double r = 15000;
+	double h = 20000000.0;
+	osg::Vec3 orginPt(0.0, 0.0, 0.0);
+	osg::ref_ptr<osg::Geode> cylinderGeode = new osg::Geode;
+	osg::ref_ptr<osg::Cylinder> geoCylinder = new osg::Cylinder(orginPt, r, h);
+	osg::ref_ptr<osg::ShapeDrawable> cylinderDrawable = new osg::ShapeDrawable(geoCylinder.get());
+	cylinderDrawable->setColor(osg::Vec4(1.0f,0.0f,0.0f,1.0f));
+	cylinderGeode->addDrawable(cylinderDrawable.get());
+	mRoot ->addChild (cylinderGeode);
+
 
 	if(Isblank==true)
 	{
@@ -282,104 +486,7 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 	int rowcount=0;
 
 	satellitecount = sqllist.count(); 
-	////经纬度范围初始化
-	//double startPointLongitude = ui.startLongitudeEdit->text().toDouble();
-	//double startPointLatitude = ui.startLatitudeEdit->text().toDouble();
 
-	//double endPointLongitude = ui.endLongitudeEdit->text().toDouble();
-	//double endPointLatitude = ui.endLatitudeEdit->text().toDouble();
-
-	//if (startPointLongitude<0)
-	//{
-	//	startPointLongitude+=360;
-	//}
-	//if (endPointLongitude<=0)
-	//{
-	//	endPointLongitude+=360;
-	//}
-	//if (startPointLongitude>endPointLongitude&&startPointLatitude<endPointLatitude)
-	//{
-	//	double temp=startPointLongitude;
-	//	startPointLongitude=endPointLongitude;
-	//	endPointLongitude=temp;
-	//	temp=startPointLatitude;
-	//	startPointLatitude=endPointLatitude;
-	//	endPointLatitude=temp;
-	//}
-	//else if (startPointLongitude<endPointLongitude&&startPointLatitude<endPointLatitude)
-	//{
-	//	double temp=startPointLatitude;
-	//	startPointLatitude=endPointLatitude;
-	//	endPointLatitude=temp;
-	//}
-	//else if (startPointLongitude>endPointLongitude&&startPointLatitude>endPointLatitude)
-	//{
-	//	double temp=startPointLongitude;
-	//	startPointLongitude=endPointLongitude;
-	//	endPointLongitude=temp;
-	//}
-
-	////经纬度编号初始化
-	//int longitudeID = ui.longitudeIDEdit->text().toInt();
-	//int latitudeID= ui.latitudeIDEdit->text().toInt();
-	//if(IssiftID==true)
-	//{
-	//	startPointLongitude=UnitLongitude*longitudeID;
-	//	startPointLatitude=90-UnitLatitude*latitudeID;
-	//	endPointLongitude=UnitLongitude*(longitudeID+1);
-	//	endPointLatitude=90-UnitLatitude*(latitudeID+1);
-	//}
-
-	//时间处理
-	//QStringList info3=ui.startdateEdit->text().split("-");
-	//int startYear=info3[0].toInt();
-	//int startMonth=info3[1].toInt();
-	//int startDay=info3[2].toInt();
-	//QString strstartdate,strstartYear,strstartMonth,strstartDay;
-	//strstartYear=QString::number(startYear);
-	//if (startMonth<10)
-	//{
-	//	strstartMonth="0"+QString::number(startMonth);
-	//}
-	//if (startDay<10)
-	//{
-	//	strstartDay="0"+QString::number(startDay);
-	//}
-	//strstartdate = strstartYear+strstartMonth+strstartDay;
-	//int startdate =strstartdate.toInt();
-
-	//QStringList info4=ui.enddateEdit->text().split("-");
-	//int endYear=info4[0].toInt();
-	//int endMonth=info4[1].toInt();
-	//int endDay=info4[2].toInt();
-
-	//QString strenddate,strendYear,strendMonth,strendDay;
-	//strendYear=QString::number(endYear);
-	//if (endMonth<10)
-	//{
-	//	strendMonth="0"+QString::number(endMonth);
-	//}
-	//else
-	//{
-	//	strendMonth=QString::number(endMonth);
-	//}
-
-	//if (endDay<10)
-	//{
-	//	strendDay="0"+QString::number(endDay);
-	//}
-	//else
-	//{
-	//	strendDay=QString::number(endDay);
-	//}
-	//strenddate = strendYear+strendMonth+strendDay;
-	//int enddate =strenddate.toInt();
-	//if(startdate>enddate) 
-	//{
-	//	QMessageBox::information(this,QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("开始时间应早于结束时间"));
-	//	return NULL;
-	//}
-	//计算各卫星在时间范围内总的单错数
 	for (int k=0;k<satellitecount;k++)
 	{
 		query.exec(sqllist.at(k));
@@ -426,6 +533,7 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 		double faultcount;
 		while(query.next())
 		{
+			QCoreApplication::processEvents();
 			faultcount=query.value(0).toDouble();
 			HLB.Longitude = query.value(1).toDouble();
 			HLB.Latitude = query.value(2).toDouble();
@@ -509,7 +617,7 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 
 					osg::ref_ptr <osg::Geode> spheregeode = new osg::Geode ;
 					osg::ref_ptr<osg::TessellationHints> hints = new osg::TessellationHints;
-					hints->setDetailRatio(0.2f);
+					hints->setDetailRatio(0.8f);
 					osg::ref_ptr<osg::ShapeDrawable> shape; 
 					double tempcount = 0;
 					if (fabs(faultcount)>15)
@@ -621,8 +729,8 @@ void osgdisplay::DisplayOSG()
 		
 	}
 	IsMultisat=true;
-	LongitudeCount =16;
-	LatitudeCount = 8;
+	LongitudeCount =24;
+	LatitudeCount = 12;
 	paraID = ui.comboBox_3->currentIndex()+9;
 	satlist.clear();
 	satlist.append(ui.comboBox->currentText());
@@ -705,23 +813,51 @@ void osgdisplay::onChanged()
 {
 	this->ui.listWidget->clear();
 	QString strSat = ui.comboBox->currentText();
+	QStringList chipList;
 	QSqlQuery query(*sql.db);
-	query.exec("select*from PARAMETER where SATELLITENO = '"+strSat+"'order by ID");
+	query.exec("select*from SATELLITE_PUBLIC where SATELLITENO = '"+strSat+"' order by ID");
+	while(query.next())
+	{
+		chipList.append(query.value(3).toString());
+	}
+	int count =chipList.count();
 	QStringList list;
+	QString strsql;
+	if(count==1)
+	{
+		strsql= "select * from PARAMETER where CHIPNAME = '"+chipList.at(0)+"' order by ID";
+	}
+	if (count>1)
+	{
+		strsql= "select * from PARAMETER where ";
+		for (int i=0;i<count;i++)
+		{
+			strsql +="CHIPNAME = '"+chipList.at(i)+"'";
+			if(i!=count-1)
+				strsql +=" or ";
+		}
+	}
+	query.exec(strsql);
 	while(query.next())
 	{
 		QString str = str.fromLocal8Bit("芯片名称：");
+		list.append(str+query.value(1).toString());
+		str = str.fromLocal8Bit("  规格：");
+		list.append(str+query.value(2).toString());
+		str = str.fromLocal8Bit("  封装：");
 		list.append(str+query.value(3).toString());
-		str = str.fromLocal8Bit("规格：");
+		str = str.fromLocal8Bit("  额定电压：");
 		list.append(str+query.value(4).toString());
-		str = str.fromLocal8Bit("封装：");
+		str = str.fromLocal8Bit("  总剂量：");
 		list.append(str+query.value(5).toString());
-		str = str.fromLocal8Bit("额定电压：");
+		str = str.fromLocal8Bit("  单粒子翻转：");
 		list.append(str+query.value(6).toString());
-		str = str.fromLocal8Bit("额定电流：");
+		str = str.fromLocal8Bit("  单粒子锁定：");
 		list.append(str+query.value(7).toString());
-		str = str.fromLocal8Bit("抗辐射指标：");
+		str = str.fromLocal8Bit("  厂家：");
 		list.append(str+query.value(8).toString());
+		str = str.fromLocal8Bit("  备注：");
+		list.append(str+query.value(9).toString());
 	}
 	this->ui.listWidget->addItems(list);
 }
@@ -753,7 +889,7 @@ void osgdisplay::on_outputButton_clicked()
 	if(dlg.exec()!= QDialog::Accepted)
 		return;
 	QString filePath=dlg.selectedFiles()[0];
-	if(OdbcExcel::saveFromTable(filePath,ui.tableWidget,"")) {
+	if(OdbcExcel::saveFromTable(0,filePath,ui.tableWidget,"")) {
 		QString str = str.fromLocal8Bit("提示");
 		QString str2 = str.fromLocal8Bit("保存成功");
 		QMessageBox::information(this,str,str2);

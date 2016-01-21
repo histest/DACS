@@ -26,17 +26,10 @@ void ComponentManagement::initUI()
 	QSqlQuery query(*sql.db);
 	query.exec("select*from PARAMETER order by ID");
 	QStringList list;
-	bool Isexist;
+	bool Isexist=false;
 	while(query.next())
 	{
-		for (int i=0;i<list.count();i++)
-		{
-			if (query.value(1).toString()==list.at(i))
-				Isexist=true;
-		}
-		if(!Isexist)
-			list.append(query.value(1).toString());
-		Isexist=false;
+		list.append(query.value(1).toString());
 	}
 	Isexist=false;
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
@@ -57,6 +50,17 @@ void ComponentManagement::initUI()
 	ui.comboBox->addItems(list);
 	ui.comboBox_2->addItems(satlist);
 	ui.comboBox_2->setEnabled(false);
+}
+void ComponentManagement::DisableInput()
+{
+	ui.openButton->setEnabled(false);
+	ui.outButton->setEnabled(false);
+	ui.comboBox->setEnabled(false);
+	ui.comboBox_2->setEnabled(false);
+	ui.radioButton->setEnabled(false);
+	ui.radioButton_2->setEnabled(false);
+	ui.inputButton->setEnabled(false);
+	ui.lineEdit->setEnabled(false);
 }
 QStringList CSVLists; 
 void ComponentManagement::on_openButton_clicked()
@@ -98,6 +102,13 @@ void ComponentManagement::on_openButton_clicked()
 		if (row!=0)
 		{
 			QStringList info = str.split(",");
+			if (info.length()!=9)
+			{
+				QString str = str.fromLocal8Bit("提示");
+				QString str2 = str.fromLocal8Bit("导入文件格式错误！");
+				QMessageBox::information(this,str,str2);
+				return;
+			}
 			for (int i=0;i<9;i++)
 			{
 				ui.tableWidget->setItem(row-1,i,new QTableWidgetItem(info[i]));  
@@ -224,7 +235,7 @@ void ComponentManagement::on_outButton_clicked()
 	if(dlg.exec()!= QDialog::Accepted)
 		return;
 	QString filePath=dlg.selectedFiles()[0];
-	if(OdbcExcel::saveFromTable(filePath,ui.tableView_2,"")) {
+	if(OdbcExcel::saveFromTable(0,filePath,ui.tableView_2,"")) {
 		QString str = str.fromLocal8Bit("提示");
 		QString str2 = str.fromLocal8Bit("保存成功");
 		QMessageBox::information(this,str,str2);
@@ -297,13 +308,13 @@ void ComponentManagement::on_previewButton_2_clicked()
 	ui.tableView_2->setModel(model);
 	ui.tableView_2->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
-void ComponentManagement::DisableInput()
-{
-	ui.lineEdit->setEnabled(false);
-	ui.inputButton->setEnabled(false);
-	//ui.previewButton->setEnabled(false);
-	ui.openButton->setEnabled(false);
-}
+//void ComponentManagement::DisableInput()
+//{
+//	ui.lineEdit->setEnabled(false);
+//	ui.inputButton->setEnabled(false);
+//	//ui.previewButton->setEnabled(false);
+//	ui.openButton->setEnabled(false);
+//}
 void ComponentManagement::on_radioButton_clicked()
 {
 	if (ui.radioButton->isChecked())
