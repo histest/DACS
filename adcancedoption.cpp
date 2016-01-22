@@ -449,8 +449,9 @@ void Adcancedoption::on_okButton_clicked()
 	{
 		strzone= QString::fromLocal8Bit("È«Çò");
 	}
-	emit getsql(sqllist);
 	this->hide();
+	emit getsql(sqllist);
+	
 }
 QString Adcancedoption::getsift(QString strsift)
 {

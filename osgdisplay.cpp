@@ -36,7 +36,9 @@ osgdisplay::osgdisplay(QWidget *parent)
 }
 void osgdisplay::initUI()
 {
-
+	option= new Adcancedoption;
+	option->setWindowModality(Qt::WindowModal);
+	connect(option,SIGNAL(getsql(QStringList)), this, SLOT(setsql(QStringList)));
 	veSat.clear();
 	this->ui.comboBox->clear();
 	QSqlQuery query(*sql.db);
@@ -261,174 +263,6 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 
 	osg::Group*	mRoot  = new osg::Group;
 
-
-	//osg::Geometry* Axis=new osg::Geometry;
-
-	//osg::Vec3Array* vecArray=new osg::Vec3Array;
-
-	//vecArray->push_back(osg::Vec3(0.0,0.0,0.0));
-
-	//vecArray->push_back(osg::Vec3(100.0,0.0,0.0));
-
-	//vecArray->push_back(osg::Vec3(0.0,100.0,0.0));
-
-	//vecArray->push_back(osg::Vec3(0.0,0.0,100.0));
-
-
-
-	//osg::Vec3Array* color=new osg::Vec3Array;
-
-	//color->push_back(osg::Vec3(1.0,0.0,0.0));
-
-	//color->push_back(osg::Vec3(0.0,1.0,0.0));
-
-	//color->push_back(osg::Vec3(0.0,0.0,1.0));
-
-
-
-	//osg::TemplateIndexArray<unsigned int, osg::Array::UIntArrayType,4,4> *colorIndexArray
-
-	//	=new osg::TemplateIndexArray<unsigned int, osg::Array::UIntArrayType,4,4>;
-
-	//colorIndexArray->push_back(0);
-
-	//colorIndexArray->push_back(1);
-
-	//colorIndexArray->push_back(2);
-
-
-
-	//Axis->setVertexArray(vecArray);
-
-	//Axis->setColorArray(color);
-
-	//Axis->setColorIndices(colorIndexArray);
-
-	//Axis->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE);
-
-
-
-	//osg::DrawElementsUInt* pXaxisPrimitiveSet=new osg::DrawElementsUInt(osg::PrimitiveSet::LINES);
-
-	//pXaxisPrimitiveSet->push_back(0);
-
-	//pXaxisPrimitiveSet->push_back(1);
-
-	//osg::DrawElementsUInt* pYaxisPrimitiveSet=new osg::DrawElementsUInt(osg::PrimitiveSet::LINES);
-
-	//pYaxisPrimitiveSet->push_back(0);
-
-	//pYaxisPrimitiveSet->push_back(2);
-
-	//osg::DrawElementsUInt* pZaxisPrimitiveSet=new osg::DrawElementsUInt(osg::PrimitiveSet::LINES);
-
-	//pZaxisPrimitiveSet->push_back(0);
-
-	//pZaxisPrimitiveSet->push_back(3);
-
-
-
-	//Axis->addPrimitiveSet(pXaxisPrimitiveSet);
-
-	//Axis->addPrimitiveSet(pYaxisPrimitiveSet);
-
-	//Axis->addPrimitiveSet(pZaxisPrimitiveSet);
-	//osg::Geode* AxisGeode=new osg::Geode;
-
-	//AxisGeode->addDrawable(Axis);
-	////set some attribute
-
-	//osg::LineWidth* lineW=new osg::LineWidth;
-
-	//lineW->setWidth(3.0);
-
-
-
-	//osg::StateSet* stateset=AxisGeode->getOrCreateStateSet();
-
-	//stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
-
-	//stateset->setAttribute(lineW,osg::StateAttribute::ON);
-
-	//End Draw Axis
-
-
-
-	//Begin add Text
-
-	//osg::Geode* HudGeode=new osg::Geode;
-
-	//osgText::Text* textx = new osgText::Text();
-
-	//HudGeode->addDrawable(textx);
-
-	//osgText::Text* texty=new osgText::Text();
-
-	//HudGeode->addDrawable(texty);
-
-	//osgText::Text* textz=new osgText::Text();
-
-	//HudGeode->addDrawable(textz);
-
-
-
-	//// 设置HUD文字的参数
-
-	//textx->setCharacterSize(5);
-
-	//textx->setFont("C:/WINDOWS/Fonts/SIMKAI.ttf");//宋体
-
-	//textx->setText(L"x 轴");
-
-	//textx->setAxisAlignment(osgText::Text::XZ_PLANE);
-
-	//textx->setAlignment(osgText::Text::CENTER_TOP);
-
-	//textx->setPosition( osg::Vec3(100.0,0.0,0.0) );
-
-	//textx->setColor( osg::Vec4(1.0, 0.0, 0.0, 1) );
-
-
-
-
-
-	//texty->setCharacterSize(5);
-
-	//texty->setFont("C:/WINDOWS/Fonts/SIMKAI.ttf");//楷体
-
-	//texty->setText(L"y 轴");
-
-	//texty->setAxisAlignment(osgText::Text::YZ_PLANE);
-
-	//texty->setAlignment(osgText::Text::CENTER_TOP);
-
-	//texty->setPosition( osg::Vec3(0.0,100.0,0.0) );
-
-	//texty->setColor( osg::Vec4(0.0, 1.0, 0.0, 1) );
-
-
-
-	//textz->setCharacterSize(5);
-
-	//textz->setFont("C:/WINDOWS/Fonts/SIMKAI.ttf");//楷体
-
-	//textz->setText(L"z 轴");
-
-	//textz->setAxisAlignment(osgText::Text::XZ_PLANE);
-
-	//textz->setAlignment(osgText::Text::CENTER_TOP);
-
-	//textz->setPosition(osg::Vec3(0.0,0.0,100.0));
-
-	//textz->setColor(osg::Vec4(0.0, 0.0, 1.0, 1));
-
-	//mRoot->addChild(HudGeode);
-	//mRoot->addChild(AxisGeode);
-	
-
-
-	//地图
-
 	osg::ref_ptr<osg::MatrixTransform> matrixEarth = new osg::MatrixTransform;
 	osg::ref_ptr<osg::TessellationHints> pHints = new osg::TessellationHints;
 	pHints->setDetailRatio(5.0f);
@@ -499,6 +333,24 @@ osg::Group*osgdisplay::InitSceneGraph(void)
 	int row=0;
 	ui.progressBar->setRange(0,satellitecount*LongitudeCount*LatitudeCount);  
 	ui.tableWidget->setRowCount(rowcount);
+	bool Isnull= true;
+	for (int k=0;k<satellitecount;k++)
+	{
+		query.exec(sqllist.at(k));
+		while(query.next())
+		{
+			Isnull = false;
+			break;
+		}
+
+	}
+	if(Isnull == true) 
+	{
+		QString str = str.fromLocal8Bit("提示");
+		QString str2 = str.fromLocal8Bit("无数据！");
+		QMessageBox::information(this,str,str2);
+		return NULL;
+	}
 	for (int k=0;k<satellitecount;k++)
 	{
 		//QString strSat=satelliteNo[k];
@@ -717,6 +569,7 @@ static int Discount=0;
 void osgdisplay::DisplayOSG()
 {
 	ui.tableWidget->clear();
+	viewWidget->hide();
 	Isblank=false;
 	QStringList header;  
 	header<<QString::fromLocal8Bit("卫星")<<QString::fromLocal8Bit("区域编号")<<ui.comboBox_3->currentText()<<QString::fromLocal8Bit("占总数百分比")<<QString::fromLocal8Bit("区域范围"); 
@@ -928,13 +781,11 @@ void osgdisplay::on_refreshButton_2_clicked()
 }
 void osgdisplay::on_advancedButton_clicked()
 {
-	option= new Adcancedoption;
-	option->setWindowModality(Qt::WindowModal);
-	connect(option,SIGNAL(getsql(QStringList)), this, SLOT(setsql(QStringList)));
 	option->show();
 }
 void osgdisplay::setsql(QStringList strlist)
 {
+	viewWidget->hide();
 	sqllist.clear();
 	satlist.clear();
 	paralist.clear();
@@ -972,7 +823,7 @@ void osgdisplay::setsql(QStringList strlist)
 	ui.tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 	Isblank=false;
 	//viewWidget->close();
-	viewWidget->show();
+
 	viewWidget->view->addEventHandler( new osgViewer::StatsHandler );
 	viewWidget->view->setCameraManipulator( new osgGA::TrackballManipulator );
 	viewWidget->view->removeEventHandler(pickhandler);
@@ -982,8 +833,10 @@ void osgdisplay::setsql(QStringList strlist)
 	pickhandler->pickcount=0;
 	viewWidget->view->getEventHandlers().push_front(pickhandler);//new CPickHandler(mViewer));
 	osg::Group* root = new osg::Group;
+	//QCoreApplication::processEvents();
 	root= InitSceneGraph();
 	viewWidget->view->setSceneData(root);
+	viewWidget->show();
 }
 void osgdisplay::setCompleter(const QString &text) {
 	namelistview->hide();

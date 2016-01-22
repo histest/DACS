@@ -8,6 +8,13 @@ Recoverdb::Recoverdb(QWidget *parent)
 }
 void Recoverdb::on_recoverButton_clicked()
 {
+	if (ui.lineEdit->text()=="")
+	{
+		QString str = str.fromLocal8Bit("提示");
+		QString str2 = str.fromLocal8Bit("请选择本地源数据库！");
+		QMessageBox::information(NULL, str,str2, QMessageBox::Ok);
+		return;
+	}
 	if (sql.dboracle==true)
 	{
 		QString sDbNm =ui.lineEdit->text();
@@ -37,6 +44,8 @@ void Recoverdb::on_recoverButton_clicked()
 		query.exec("delete from SOURCEDATA");	
 		query.exec("delete from PARAMETER");
 		query.exec("delete from USERS");
+		query.exec("delete from DICTIONARY");
+		query.exec("delete from SATELLITE_PUBLIC");
 
 		QSqlQuery querysat(*dbrecover);
 		bool bquery=querysat.exec("select*from SATELLITE  order by ID");
@@ -70,6 +79,21 @@ void Recoverdb::on_recoverButton_clicked()
 			}
 
 			}*/
+			if(!query.exec())
+			{
+				QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("恢复失败！"), QMessageBox::Ok);
+				return;
+			}
+		}
+
+		querysat.exec("select * from SATELLITE_PUBLIC ");
+		while(querysat.next())
+		{
+			query.prepare("INSERT INTO SATELLITE_PUBLIC VALUES (?, ?, ?, ?)");
+			for (int i=0;i<4;i++)
+			{
+				query.bindValue(i, querysat.value(i));
+			}
 			if(!query.exec())
 			{
 				QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("恢复失败！"), QMessageBox::Ok);
@@ -113,8 +137,8 @@ void Recoverdb::on_recoverButton_clicked()
 		{
 
 			query.prepare("INSERT INTO PARAMETER "
-				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-			for (int i=0;i<9;i++)
+				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			for (int i=0;i<10;i++)
 			{
 				query.bindValue(i, querysat.value(i));
 			}
@@ -142,6 +166,24 @@ void Recoverdb::on_recoverButton_clicked()
 			}
 		}
 		QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("恢复成功！"), QMessageBox::Ok);
+
+		QString  strsql=QString("select * from DICTIONARY order by ID");
+		querysat.exec(strsql);
+		while(querysat.next())
+		{
+
+			query.prepare("INSERT INTO DICTIONARY "
+				"VALUES (?, ?, ?, ?)");
+			for (int i=0;i<4;i++)
+			{
+				query.bindValue(i, querysat.value(i));
+			}
+			if(!query.exec())
+			{
+				QMessageBox::information(NULL, QString::fromLocal8Bit("提示"),QString::fromLocal8Bit("恢复失败！"), QMessageBox::Ok);
+				return;
+			}
+		}
 	}
 	else
 	{

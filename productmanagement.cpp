@@ -41,6 +41,8 @@ ProductManagement::ProductManagement(QWidget *parent)
 void ProductManagement::initUI()
 {
 	search= new Advancedsearch;
+	connect(search,SIGNAL(getsql(QString)), this, SLOT(advancedpreview(QString)));
+	search->setWindowModality(Qt::WindowModal);
 	this->ui.comboBox->clear();
 	QSqlQuery query(*sql.db);
 	query.exec("select*from SATELLITE_PUBLIC");
@@ -662,8 +664,7 @@ void ProductManagement::on_refreshButton_clicked()
 }
 void ProductManagement::on_advancedsearchButton_clicked()
 {
-	connect(search,SIGNAL(getsql(QString)), this, SLOT(advancedpreview(QString)));
-	search->setWindowModality(Qt::WindowModal);
+
 	if (chosecount>0)
 	{
 		search->show();
@@ -676,16 +677,27 @@ void ProductManagement::on_advancedsearchButton_clicked()
 }
 void ProductManagement::advancedpreview(QString strsql)
 {
+	ProgressBar*progress = new ProgressBar();
+	progress->setWindowFlags(Qt::FramelessWindowHint);
+	progress->setModal(true);
+	progress->show();
+	progress->setFixedWidth(220);
+	progress->ui.label_2->setText(QString::fromLocal8Bit("正从数据库获取数据，请等待..."));
+	progress->ui.progressBar->setVisible(false);
+	progress->ui.label->setVisible(false);
+	QCoreApplication::processEvents();
 	QSqlQueryModel *model=new QSqlQueryModel();
 	QString strSat =ui.comboBox->currentText();
 	model->setQuery(strsql,*sql.db);
 	if (model)
 	{
+		QCoreApplication::processEvents();
 		QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
 		proxy->setSourceModel(model);
 		ui.tableView_2->setModel(proxy);
 	}
 	ui.tableView_2->setSortingEnabled(true);
+	progress->hide();
 }
 void ProductManagement::setCompleter(const QString &text) {
 	namelistview->hide();

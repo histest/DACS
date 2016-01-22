@@ -17,6 +17,7 @@
 #include "mydefine.h"
 #include <QTextCodec>
 #include <vector>  
+#include "progressbar.h"
 using namespace std;
 extern bool Isfresh;
 extern ConnectSql sql;
@@ -45,6 +46,9 @@ curve::curve(QWidget *parent)
 }
 void curve::initUI()
 {
+	option= new Adcancedoption;
+	option->setWindowModality(Qt::WindowModal);
+	connect(option,SIGNAL(getsql(QStringList)), this, SLOT(setsql(QStringList)));
 	vecSat.clear();
 	QSqlQuery query(*sql.db);
 	query.exec("select*from SATELLITE_PUBLIC order by ID");
@@ -247,7 +251,28 @@ void curve::setupChart()
 	rowcount=(xcount+1)*satellitecount;
 	ui.tableWidget->setRowCount(rowcount);
 
+	ProgressBar*progress = new ProgressBar();
+	progress->setWindowFlags(Qt::FramelessWindowHint);
+	progress->setModal(true);
+	progress->show();
+	progress->ui.label_2->setText(QString::fromLocal8Bit("正在绘图，请等待..."));
+	//progress->ui.progressBar->setVisible(false);
+	progress->ui.progressBar->setValue(0); 
+	int range =0;
+	for (int i=0;i<satellitecount;i++)
+	{
+		QSqlQuery query(*sql.db);
+		query.exec(sqllist.at(i));
+		while(query.next())
+		{
+			range++;
+			QCoreApplication::processEvents();
+		}
+	}
+	progress->ui.progressBar->setRange(0,range);
 
+	//setText(QString::fromLocal8Bit("正在绘图，请等待..."));
+	int currentvalue = 0;
 	for (int i=0;i<satellitecount;i++)
 	{
 		QSqlQuery query(*sql.db);
@@ -539,10 +564,13 @@ void curve::setupChart()
 				count=0;
 
 			}
-
+			currentvalue++;
+			progress->ui.progressBar->setValue(currentvalue); 
 		}
+
 		if(m==0&&satellitecount==1)
 		{
+			progress->close();
 			QMessageBox::information(this,QString::fromLocal8Bit("提示"),satelliteNo[i]+QString::fromLocal8Bit("在该时间段内无数据"));
 			return;
 		}
@@ -779,7 +807,7 @@ void curve::setupChart()
 	// Output the chart
 
 	viewer->setChart(chart);
-
+	progress->close();
 	//// Include tool tip for the chart
 	//viewer->setImageMap(
 	//	chart->getHTMLImageMap("", "", "title='{xLabel}: {value}'"));
@@ -1035,9 +1063,8 @@ void curve::on_refreshButton_clicked()
 }
 void curve::on_advancedButton_clicked()
 {
-	option= new Adcancedoption;
-	option->setWindowModality(Qt::WindowModal);
-	connect(option,SIGNAL(getsql(QStringList)), this, SLOT(setsql(QStringList)));
+
+
 	option->show();
 }
 void curve::setsql(QStringList strlist)

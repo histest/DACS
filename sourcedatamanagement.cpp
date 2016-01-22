@@ -1,6 +1,8 @@
 #include "sourcedatamanagement.h"
 #include "connectsql.h"
+#include "progressbar.h"
 extern ConnectSql sql;
+int pointcount;
 SourceDataManagement::SourceDataManagement(QWidget *parent)
 	: QWidget(parent)
 {
@@ -17,6 +19,9 @@ SourceDataManagement::SourceDataManagement(QWidget *parent)
 
 void SourceDataManagement::initUI()
 {
+	search= new Advancedsearch;
+	connect(search,SIGNAL(getsql(QString)), this, SLOT(advancedpreview(QString)));
+	search->setWindowModality(Qt::WindowModal);
 	on_refreshButton_clicked();
 	ui.tableView->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 }
@@ -48,23 +53,55 @@ void SourceDataManagement::on_clearButton_clicked()
 }
 void SourceDataManagement::on_advancedButton_clicked()
 {
-	search= new Advancedsearch;
-	connect(search,SIGNAL(getsql(QString)), this, SLOT(advancedpreview(QString)));
-	search->setWindowModality(Qt::WindowModal);
-	search->setFlag(2);
+
+	
+	//search->setFlag(2);
+	if (pointcount>0)
+	{
+		search->show();
+	}
+	else
+	{
+		search->setFlag(2);
+	}
+	pointcount++;
 }
 void SourceDataManagement::advancedpreview(QString strsql)
 {
+	//QLabel*hint = new QLabel;
+	//hint->setText(QString::fromLocal8Bit("正从数据库获取数据，请等待..."));
+	//hint->setWindowFlags(Qt::FramelessWindowHint);
+	////hint->show();
+	//QString str = str.fromLocal8Bit("提示");
+	//QString str2 = str.fromLocal8Bit("正从数据库获取数据，请等待...");
+	////QMessageBox::information(this,str,str2);
+
+	//QMessageBox message(QMessageBox::NoIcon, str, str2); 
+	//message.show();
+	//message.setModal(false);
+	//message.setWindowFlags(Qt::FramelessWindowHint);
+	ProgressBar*progress = new ProgressBar();
+	progress->setWindowFlags(Qt::FramelessWindowHint);
+	progress->setModal(true);
+	progress->show();
+	progress->setFixedWidth(220);
+	progress->ui.label_2->setText(QString::fromLocal8Bit("正从数据库获取数据，请等待..."));
+	progress->ui.progressBar->setVisible(false);
+	progress->ui.label->setVisible(false);
+	QCoreApplication::processEvents();
 	QSqlQueryModel *model=new QSqlQueryModel();
 	model->setQuery(strsql,*sql.db);
 	if (model)
 	{
+		QCoreApplication::processEvents();
 		QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
 		proxy->setSourceModel(model);
 		ui.tableView->setModel(proxy);
 	}
 	ui.tableView->setSortingEnabled(true);
 	ui.tableView->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
+	//hint->hide();
+	progress->hide();
 }
 void SourceDataManagement::showDictionary(const QModelIndex &index)
 {

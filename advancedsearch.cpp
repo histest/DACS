@@ -208,8 +208,9 @@ void Advancedsearch::on_okButton_clicked()
 		}
 	}
 	strsql +="  order by ID";
-	emit getsql(strsql);
+
 	this->close();
+	emit getsql(strsql);
 }
 QString Advancedsearch::getsift(QString strsift)
 {
